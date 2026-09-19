@@ -1,0 +1,13 @@
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font: 16px/1.6 ui-serif, Georgia, "Times New Roman", serif;
+  color: #1a1714;
+  background: #faf7f2;
+  padding: 0 16px;
+}
+main { max-width: 34rem; margin: 0 auto; padding-block: 12vh 8vh; }
+h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 0.75rem; }
+p { margin: 0 0 1rem; }
+.muted { color: #6b635a; font-size: 0.9rem; }
