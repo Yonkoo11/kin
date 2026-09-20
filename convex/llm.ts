@@ -39,6 +39,9 @@ export async function extractJson(
     if (!raw) throw new Error("empty completion");
     return { json: JSON.parse(raw), producedBy: OPENAI_MODEL };
   } catch (err: any) {
+    // A silent fallback hides the reason the primary failed, which is how a billing
+    // problem can look like a working app for a week. Say it out loud, every time.
+    console.warn(`[llm] OpenAI call failed, falling back. Reason: ${err?.message ?? err}`);
     const key = process.env.ANTHROPIC_API_KEY;
     if (!key) throw err;
 
