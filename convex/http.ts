@@ -2,6 +2,7 @@ import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { components } from "./_generated/api";
 import { AgentMail } from "@agentmail/convex";
+import { registerStaticRoutes } from "@convex-dev/static-hosting";
 
 const http = httpRouter();
 const agentmail = new AgentMail(components.agentmail);
@@ -22,5 +23,9 @@ http.route({
 
 // Firecrawl's crawl webhook is mounted by the component itself at /firecrawl/webhook
 // via the httpPrefix set in convex.config.ts.
+
+// Registered last. Static hosting serves the site from the root, and the webhook
+// routes above are exact paths that must keep winning over it.
+registerStaticRoutes(http, components.staticHosting);
 
 export default http;
