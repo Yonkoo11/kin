@@ -70,3 +70,45 @@ component's own README.
 Next: deploy the empty shell to a convex.site URL before any features, then the Phase 1 gate, which is
 `D1118-02D` appearing in the browser having been read live from Wells Fargo's page, with that string
 absent from the source.
+
+## 2026-09-20 — Session 2: the sending half, and a security pass
+
+**Read the APIs instead of guessing them.** Pulled AgentMail's and Firecrawl's own docs, then read
+the installed component's type definitions directly out of `node_modules`. That gave the exact
+surface rather than a plausible-looking invention: `handleWebhook`, `status` as a reactive query,
+and an `onMessageReceived` hook that fires on every inbound message.
+
+Two things came out of it.
+
+**One open question closed.** AgentMail supports no plus-addressing and no catch-all. Confirmed in
+both sources. Inbound mail is matched by thread id first, with a case code in the subject as the
+fallback. The design never depended on it, so this cost nothing.
+
+**One new trap found.** AgentMail has a restricted mode: until an account is claimed by its human, it
+can only send to that human's own address, ten a day. An unclaimed account means a judge presses send
+and nothing happens. There is now a preflight check that answers this, and whether Firecrawl can
+reach the four hosts that matter, before anything is built on top of either.
+
+**Security pass.** A background review flagged six issues across the new code. All six were real and
+all six are fixed. The one worth describing:
+
+This product reads pages it did not write, and then tells a grieving person where to post a certified
+death certificate. That makes prompt injection the central threat, not a checklist item. A hostile or
+spoofed page can try to make the model emit an attacker's address.
+
+So nothing the model returns is trusted on its own. Page text is delimited and framed as data.
+Then every contact fact, the postal address, the overnight address, the fax number, the phone number,
+the form name, is checked back against the page, comparing on alphanumerics only so a reflowed
+address still matches but an invented one cannot. Anything not literally on the page is dropped, and
+the card tells the family which fields were dropped and to confirm those by phone. Portal links must
+be https and on the same site we read. Source links are parsed, forced to https, and shown by hostname
+so nobody has to take our word for whose page it was.
+
+The other five: cases had no owner check (demo cases stay open so judges need no signup, real cases
+are scoped to their creator), the case token used `Math.random` when it is really a credential
+(now 16 characters from the CSPRNG), and five functions that only the server should call were publicly
+callable (now internal).
+
+**State:** the frontend build does not pass yet, and that is expected: it imports Convex's generated
+API, which does not exist until the first `npx convex dev` creates the deployment. Nothing has run
+against a live service.
