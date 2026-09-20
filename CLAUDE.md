@@ -15,7 +15,7 @@ Full playbook: `SECURITY.md`. Read it before any deploy or signing work.
 
 ---
 
-# Afterward — working rules
+# Kin — working rules
 
 ## How to talk to me (I do not read code)
 - Plain English. Say "save point" not "commit", "publish" not "push", "version" not "branch".

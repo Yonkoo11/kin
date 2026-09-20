@@ -1,4 +1,4 @@
-# Afterward — build log
+# Kin — build log
 
 **The death admin inbox.**
 
@@ -7,7 +7,7 @@ banks and pensions. The other twenty-five are the phone carrier, the streaming s
 the storage unit, the HOA, the lawn service, the dentist, the employer's HR. Each one wants something
 different, and most will not tell you what until you have already waited on hold.
 
-Afterward finds out what each organisation actually requires, from that organisation's own page,
+Kin finds out what each organisation actually requires, from that organisation's own page,
 writes to them, and keeps every reply threaded on a board the whole family can watch.
 
 **Live URL:** _(day-one deploy pending — see 2026-09-19 below)_
@@ -29,7 +29,7 @@ writes to them, and keeps every reply threaded on a board the whole family can w
 US mail, fax, a branch, or their upload portal. Chase takes a branch, phone, or mail.
 
 So detecting the channel is the feature, not a limitation we work around. Where an organisation
-accepts email, Afterward runs the correspondence end to end. Where it does not, Afterward produces the
+accepts email, Kin runs the correspondence end to end. Where it does not, Kin produces the
 exact postal packet, with the exact address including any internal mail code, marks it as an offline
 step, and still catches the organisation's reply in the thread.
 
@@ -112,3 +112,8 @@ callable (now internal).
 **State:** the frontend build does not pass yet, and that is expected: it imports Convex's generated
 API, which does not exist until the first `npx convex dev` creates the deployment. Nothing has run
 against a live service.
+
+**Renamed.** The project was called Afterward for its first two days. That name was soft in the way
+funeral-industry branding is soft, and it described a mood rather than the work. **Kin** is the word
+every one of these organisations already prints on its own form: next of kin. It names the person
+using this, not the event, and it does not flinch.

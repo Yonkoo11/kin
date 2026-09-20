@@ -41,7 +41,7 @@ export default function App() {
 
   return (
     <main>
-      <h1>Afterward</h1>
+      <h1>Kin</h1>
       <p>
         When someone dies, one person has to tell twenty or thirty organisations. Each wants
         something different, and most will not tell you what until you have waited on hold.
@@ -49,7 +49,7 @@ export default function App() {
 
       {!caseId ? (
         <>
-          <p>Afterward reads each organisation's own page, works out what they need and how they
+          <p>Kin reads each organisation's own page, works out what they need and how they
             accept it, writes to them, and keeps every reply in one place.</p>
           <button onClick={start}>Open a demo estate</button>
         </>

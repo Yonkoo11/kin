@@ -1,4 +1,4 @@
-# Access needed before building — Afterward
+# Access needed before building — Kin
 
 Priced 2026-09-19, at idea lock, while swapping is still free.
 Rule: an unchecked box means the project is stopped, not in progress. Every line has a fallback tier
