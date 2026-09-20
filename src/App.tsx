@@ -3,6 +3,19 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
 
+// The source URL comes from a web search, so it is not ours and is not trusted.
+// Only ever render it as a plain https link, and always show the host, so a person
+// can see for themselves whose page this came from before acting on it.
+function safeSource(raw: string): { href: string; host: string } | null {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return null;
+    return { href: u.toString(), host: u.hostname };
+  } catch {
+    return null;
+  }
+}
+
 const CHANNEL_LABEL: Record<string, string> = {
   email: "Accepts email",
   mail: "Post only",
@@ -124,14 +137,32 @@ export default function App() {
                     )}
                   </dl>
 
-                  {/* Every fact on this card is traceable to the page it came from. */}
-                  <p className="muted">
-                    Read from{" "}
-                    <a href={c.playbook.sourceUrl} target="_blank" rel="noreferrer">
-                      their own page
-                    </a>{" "}
-                    on {new Date(c.playbook.scrapedAt).toLocaleDateString()}.
-                  </p>
+                  {c.playbook.droppedFields?.length > 0 && (
+                    <p className="warn">
+                      Some details could not be confirmed on their page and were left
+                      out rather than guessed: {c.playbook.droppedFields.join(", ")}.
+                      Check those by phone before sending anything.
+                    </p>
+                  )}
+
+                  {/* Every fact on this card is traceable to the page it came from,
+                      and the host is named so nobody has to take our word for it. */}
+                  {(() => {
+                    const src = safeSource(c.playbook.sourceUrl);
+                    return (
+                      <p className="muted">
+                        Read on {new Date(c.playbook.scrapedAt).toLocaleDateString()} from{" "}
+                        {src ? (
+                          <a href={src.href} target="_blank" rel="noreferrer noopener">
+                            {src.host}
+                          </a>
+                        ) : (
+                          "a source we could not verify — treat this card with suspicion"
+                        )}
+                        .
+                      </p>
+                    );
+                  })()}
                 </>
               )}
             </article>

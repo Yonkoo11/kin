@@ -1,9 +1,21 @@
 import { httpRouter } from "convex/server";
+import { httpAction } from "./_generated/server";
+import { components } from "./_generated/api";
+import { AgentMail } from "@agentmail/convex";
 
-// The AgentMail inbound webhook and the Firecrawl crawl webhook both mount here.
-// Firecrawl's route is added by the component via httpPrefix "/firecrawl/".
-// AgentMail's inbound route is wired in T8; leaving it unwired is deliberate rather
-// than stubbed, so nothing claims to work before it does.
 const http = httpRouter();
+const agentmail = new AgentMail(components.agentmail);
+
+// AgentMail posts here when mail arrives or a delivery state changes.
+// The component verifies the Svix signature and de-duplicates by event id,
+// so a retried webhook does not move the board twice.
+http.route({
+  path: "/agentmail/webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => agentmail.handleWebhook(ctx, req)),
+});
+
+// Firecrawl's crawl webhook is mounted by the component itself at /firecrawl/webhook
+// via the httpPrefix set in convex.config.ts.
 
 export default http;

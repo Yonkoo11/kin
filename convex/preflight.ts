@@ -1,10 +1,12 @@
 "use node";
 
-import { action } from "./_generated/server";
+import { internalAction } from "./_generated/server";
 
+// Internal only: run it from the dashboard or the CLI, never from a browser.
+// It reports account and inbox details, which nobody outside this project should see.
 // Runs inside the Convex deployment, so the keys never leave it.
 // Answers the two questions that would otherwise break the demo in front of a judge.
-export const check = action({
+export const check = internalAction({
   args: {},
   handler: async () => {
     const out: Record<string, string> = {};

@@ -63,6 +63,9 @@ export default defineSchema({
     accountTypeNotes: v.optional(v.string()),
     // Which model produced this extraction. Every generated artifact records its origin.
     extractedBy: v.string(),
+    // Facts the model returned that were NOT found on the page, and were therefore
+    // thrown away. Shown in the interface: a silently missing address is a trap.
+    droppedFields: v.optional(v.array(v.string())),
   }).index("by_institution", ["institutionName"]),
 
   // Every outbound message is drafted, shown, and sent on a human click. Never auto-sent.

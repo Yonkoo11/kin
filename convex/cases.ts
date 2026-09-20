@@ -1,33 +1,57 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
 
 // A short, human-readable routing token. AgentMail has no plus-addressing or catch-all
 // (confirmed against agent.email/skill.md and docs.agentmail.to, 2026-09-20), so inbound
 // mail is matched by thread id first and by this token in the subject as a fallback.
+// This token travels in an email subject line and is one of the two ways inbound
+// mail is matched to a family, so it is a credential, not a display id.
+// Math.random() is predictable enough to guess; use the CSPRNG and enough length
+// that guessing is not worth anyone's time.
 function newToken(): string {
   const alphabet = "abcdefghjkmnpqrstuvwxyz23456789";
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
   let out = "";
-  for (let i = 0; i < 6; i++) {
-    out += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
+  for (const b of bytes) out += alphabet[b % alphabet.length];
   return out;
+}
+
+// Every read or write of a case goes through here.
+// A case holds a dead person's name and their family's correspondence.
+// Demo cases are deliberately open so a judge can use the product without signing up;
+// everything else belongs to whoever created it.
+async function authorize(ctx: any, caseId: any) {
+  const kase = await ctx.db.get(caseId);
+  if (!kase) throw new Error("not found");
+  if (kase.demo) return kase;
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity || identity.subject !== kase.createdBy) {
+    throw new Error("not found");
+  }
+  return kase;
 }
 
 export const createCase = mutation({
   args: { deceasedName: v.string(), demo: v.optional(v.boolean()) },
   handler: async (ctx, { deceasedName, demo }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    const isDemo = demo ?? false;
+    // A real case with no signed-in owner would be a case nobody can be checked against.
+    if (!isDemo && !identity) throw new Error("sign in to open a real estate");
     return await ctx.db.insert("cases", {
       deceasedName,
       token: newToken(),
-      demo: demo ?? false,
+      demo: isDemo,
+      createdBy: identity?.subject,
     });
   },
 });
 
 export const getCase = query({
   args: { caseId: v.id("cases") },
-  handler: (ctx, { caseId }) => ctx.db.get(caseId),
+  handler: (ctx, { caseId }) => authorize(ctx, caseId),
 });
 
 // The case board. This is the reactive query the whole family watches: when a reply
@@ -35,6 +59,7 @@ export const getCase = query({
 export const board = query({
   args: { caseId: v.id("cases") },
   handler: async (ctx, { caseId }) => {
+    await authorize(ctx, caseId);
     const counterparties = await ctx.db
       .query("counterparties")
       .withIndex("by_case", (q) => q.eq("caseId", caseId))
@@ -52,13 +77,14 @@ export const board = query({
 export const addCounterparty = mutation({
   args: { caseId: v.id("cases"), name: v.string() },
   handler: async (ctx, { caseId, name }) => {
+    await authorize(ctx, caseId);
     const id = await ctx.db.insert("counterparties", {
       caseId,
       name,
       state: "researching",
     });
     // Discovery is an action because it talks to Firecrawl and OpenAI.
-    await ctx.scheduler.runAfter(0, api.research.researchInstitution, {
+    await ctx.scheduler.runAfter(0, internal.research.researchInstitution, {
       counterpartyId: id,
       name,
     });
@@ -66,14 +92,14 @@ export const addCounterparty = mutation({
   },
 });
 
-export const attachPlaybook = mutation({
+export const attachPlaybook = internalMutation({
   args: { counterpartyId: v.id("counterparties"), playbookId: v.id("playbooks") },
   handler: async (ctx, { counterpartyId, playbookId }) => {
     await ctx.db.patch(counterpartyId, { playbookId, state: "ready" });
   },
 });
 
-export const markFailed = mutation({
+export const markFailed = internalMutation({
   args: { counterpartyId: v.id("counterparties"), reason: v.string() },
   handler: async (ctx, { counterpartyId, reason }) => {
     // A failed lookup is shown, not swallowed. A family that thinks a bank was told
