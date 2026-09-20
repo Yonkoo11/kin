@@ -3,16 +3,16 @@
 - **Project:** Kin
 - **Event:** Convex All Gas Hackathon
 - **What it does:** Works out what each organisation requires when a customer dies, by reading that organisation's own page, then writes to them and tracks every reply on one live case board.
-- **Live app:** not deployed
+- **Live app:** https://acrobatic-condor-542.convex.site
 - **Repo:** private
 - **Frontend:** Convex static hosting
-- **Convex deployment:** not deployed
-- **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter
+- **Convex deployment:** https://acrobatic-condor-542.convex.cloud
+- **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter, @convex-dev/static-hosting
 - **Convex features:** schema, tables, indexes, queries, mutations, actions, HTTP actions, scheduled functions
 - **Auth:** none
 - **AI models:** gpt-5, claude-sonnet-5
 - **Started:** 2026-09-19T10:01:18Z
-- **Last updated:** 2026-09-20T22:41:00Z
+- **Last updated:** 2026-09-20T23:30:17Z
 
 ## Log
 
@@ -96,7 +96,7 @@ locked and which did not exist: OpenAI is primary because this event scores whet
 does real work, a second provider covers an outage, and every playbook records which model
 produced it (`convex/llm.ts`, `convex/research.ts`, `convex/replies.ts`).
 
-### 2026-09-20 - working tree
+### 2026-09-20 - 994d4e7
 Rate limited the open paths before publishing anything. A judge has to be able to use this
 without signing up, so the demo path is reachable by anyone, and adding an organisation
 spends real Firecrawl and model credit. Without a limit one script could empty the account
@@ -105,3 +105,31 @@ and put a token bucket on research and case creation and a fixed window on sendi
 Verified on the dev deployment: five research calls went through and the sixth and seventh
 were rejected. Convex features: registered component (`convex/limits.ts`, `convex/cases.ts`,
 `convex/mail.ts`, `convex/convex.config.ts`).
+
+### 2026-09-20 - working tree
+Published. Registered `@convex-dev/static-hosting` and mounted its routes after the
+webhook routes, so exact paths keep winning over the site's root handler. Production
+deployment is live and serving at https://acrobatic-condor-542.convex.site, verified with
+a cold request rather than assumed.
+
+Registered the inbound mail webhook from inside the deployment so the URL cannot be
+mistyped and the key never leaves it, and re-registered it against production once the
+production site URL existed. The registration deliberately reports whether a signing
+secret was issued and never the secret (`convex/webhooks.ts`, `convex/http.ts`).
+
+Smoke tested production end to end: given only the string "Wells Fargo", the live
+deployment found the bank's estate page, read it, and returned the postal address
+including its internal mail-stop code, the named form, and the channel classified as
+portal rather than email. Nothing failed the grounding check.
+
+Publishing hygiene before the repo goes public: the inbox address moved out of source into
+a per-deployment variable, because a real address in a public repository is a spam target
+and it differs between deployments anyway. Strategy and demand notes are excluded from the
+repository entirely. Added an internal action that reports which credentials a deployment
+holds as booleans only, since a length or a prefix still leaks information about a secret
+(`convex/preflight.ts`).
+
+Known gap, stated rather than hidden: OpenAI is wired as the primary model and currently
+returns 429 for lack of credits on this account, so the extraction above ran on the
+declared fallback. Every playbook records which model produced it, and the interface shows
+it. This is a billing state, not a missing integration.

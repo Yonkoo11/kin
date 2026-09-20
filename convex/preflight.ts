@@ -62,3 +62,23 @@ export const check = internalAction({
     return out;
   },
 });
+
+// Which credentials this deployment holds. Booleans only: a length or a prefix
+// still leaks information about a secret, so neither is returned.
+export const env = internalAction({
+  args: {},
+  handler: async () => {
+    const names = [
+      "OPENAI_API_KEY",
+      "ANTHROPIC_API_KEY",
+      "FIRECRAWL_API_KEY",
+      "FIRECRAWL_WEBHOOK_SECRET",
+      "AGENTMAIL_API_KEY",
+      "AGENTMAIL_WEBHOOK_SECRET",
+      "AGENTMAIL_INBOX_ID",
+    ];
+    const out: Record<string, string> = {};
+    for (const n of names) out[n] = process.env[n] ? "set" : "MISSING";
+    return out;
+  },
+});

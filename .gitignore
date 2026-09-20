@@ -52,3 +52,6 @@ ai/
 # Convex generates these on every run
 convex/_generated/
 dist/
+
+# Internal: strategy, demand evidence, personal background. Never published.
+company/

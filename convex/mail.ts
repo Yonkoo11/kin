@@ -8,7 +8,13 @@ import { rateLimiter } from "./limits";
 // and it supports no plus-addressing or catch-all (confirmed against agent.email/skill.md
 // and docs.agentmail.to, 2026-09-20). So inbound mail is matched to a family by
 // thread id first, and by a short code in the subject as a fallback.
-const INBOX = process.env.AGENTMAIL_INBOX_ID ?? "dralex@agentmail.to";
+// Set per deployment, never hardcoded. A real inbox address in a public repo is a
+// spam target, and the address differs between dev and production anyway.
+function inbox(): string {
+  const id = process.env.AGENTMAIL_INBOX_ID;
+  if (!id) throw new Error("AGENTMAIL_INBOX_ID is not set on this deployment");
+  return id;
+}
 
 const agentmail: AgentMail = new AgentMail(components.agentmail, {
   // Fired on every inbound message. This is what makes a reply move the board
@@ -48,7 +54,7 @@ export const approveAndSend = mutation({
     const kase = await ctx.db.get("cases", counterparty.caseId);
     await rateLimiter.limit(ctx, "sendMail", { key: "global", throws: true });
 
-    const outboundId: string = await agentmail.sendMessage(ctx, INBOX, {
+    const outboundId: string = await agentmail.sendMessage(ctx, inbox(), {
       to: emailMatch[0],
       // The case code rides in the subject so a reply that loses its thread headers
       // still finds its way home.
