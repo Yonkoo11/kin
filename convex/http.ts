@@ -12,7 +12,12 @@ const agentmail = new AgentMail(components.agentmail);
 http.route({
   path: "/agentmail/webhook",
   method: "POST",
-  handler: httpAction(async (ctx, req) => agentmail.handleWebhook(ctx, req)),
+  handler: httpAction(async (ctx, req) =>
+    // The cast is a version skew, not a shortcut: @agentmail/convex 0.1.0 was built
+    // against a Convex whose runMutation took one argument, and 1.46 added an options
+    // argument. The context passed is the one the component expects at runtime.
+    agentmail.handleWebhook(ctx as any, req),
+  ),
 });
 
 // Firecrawl's crawl webhook is mounted by the component itself at /firecrawl/webhook

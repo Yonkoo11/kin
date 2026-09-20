@@ -64,3 +64,17 @@ a reason written in the row. A row left blank at filing time is a criterion hand
 
 ## Hard scope refusals
 No probate filing. No auto-send without a human click. No claiming a bank takes email when it does not.
+
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->

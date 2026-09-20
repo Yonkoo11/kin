@@ -42,8 +42,8 @@ export default defineSchema({
     threadId: v.optional(v.string()),
     lastContactAt: v.optional(v.number()),
   })
-    .index("by_case", ["caseId"])
-    .index("by_thread", ["threadId"]),
+    .index("by_caseId", ["caseId"])
+    .index("by_threadId", ["threadId"]),
 
   // What this specific organisation says it requires, extracted from its own page.
   // Nothing in here is hardcoded. Every field carries the URL it came from.
@@ -66,7 +66,7 @@ export default defineSchema({
     // Facts the model returned that were NOT found on the page, and were therefore
     // thrown away. Shown in the interface: a silently missing address is a trap.
     droppedFields: v.optional(v.array(v.string())),
-  }).index("by_institution", ["institutionName"]),
+  }).index("by_institutionName", ["institutionName"]),
 
   // Every outbound message is drafted, shown, and sent on a human click. Never auto-sent.
   drafts: defineTable({
@@ -76,5 +76,5 @@ export default defineSchema({
     generatedBy: v.string(),
     approvedAt: v.optional(v.number()),
     sentMessageId: v.optional(v.string()),
-  }).index("by_counterparty", ["counterpartyId"]),
+  }).index("by_counterpartyId", ["counterpartyId"]),
 });

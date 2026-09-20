@@ -1,6 +1,6 @@
 "use node";
 
-import { internalAction, internalMutation } from "./_generated/server";
+import { internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { components, internal } from "./_generated/api";
 import { FirecrawlClient } from "@firecrawl/firecrawl-convex";
@@ -89,13 +89,16 @@ export const researchInstitution = internalAction({
   handler: async (ctx, { counterpartyId, name }) => {
     // 1. Find their page. No hardcoded URLs: four of nine hand-built institution URLs
     //    returned 404 on 2026-09-19, and two more returned 403 to a plain request.
-    const found = await firecrawl.search(ctx, {
-      query: `${name} report a death deceased account estate required documents`,
-      limit: 5,
-    });
+    const found = await firecrawl.search(
+      ctx,
+      `${name} report a death deceased account estate required documents`,
+      { limit: 5, sources: ["web"] },
+    );
 
-    const results: Array<{ url?: string; title?: string }> = (found as any)?.web ?? (found as any)?.data ?? [];
-    const candidate = results.find((r) => !!r.url);
+    const results = found.web ?? [];
+    const candidate = results.find((r) => typeof (r as any).url === "string") as
+      | { url: string }
+      | undefined;
 
     if (!candidate?.url) {
       await ctx.runMutation(internal.cases.markFailed, {
@@ -195,7 +198,7 @@ export const researchInstitution = internalAction({
       groundedIn(d, markdown),
     );
 
-    const playbookId: any = await ctx.runMutation(internal.research.savePlaybook, {
+    const playbookId: any = await ctx.runMutation(internal.playbooks.save, {
       institutionName: name,
       sourceUrl: candidate.url,
       extractedBy: model,
@@ -205,44 +208,5 @@ export const researchInstitution = internalAction({
 
     await ctx.runMutation(internal.cases.attachPlaybook, { counterpartyId, playbookId });
     return playbookId;
-  },
-});
-
-export const savePlaybook = internalMutation({
-  args: {
-    institutionName: v.string(),
-    sourceUrl: v.string(),
-    extractedBy: v.string(),
-    channel: v.string(),
-    channelNote: v.union(v.string(), v.null()),
-    postalAddress: v.union(v.string(), v.null()),
-    overnightAddress: v.union(v.string(), v.null()),
-    faxNumber: v.union(v.string(), v.null()),
-    phoneNumber: v.union(v.string(), v.null()),
-    portalUrl: v.union(v.string(), v.null()),
-    formName: v.union(v.string(), v.null()),
-    requiredDocuments: v.array(v.string()),
-    accountTypeNotes: v.union(v.string(), v.null()),
-    droppedFields: v.array(v.string()),
-  },
-  handler: async (ctx, a) => {
-    const nn = (s: string | null) => (s === null ? undefined : s);
-    return await ctx.db.insert("playbooks", {
-      institutionName: a.institutionName,
-      sourceUrl: a.sourceUrl,
-      scrapedAt: Date.now(),
-      channel: a.channel as any,
-      channelNote: nn(a.channelNote),
-      postalAddress: nn(a.postalAddress),
-      overnightAddress: nn(a.overnightAddress),
-      faxNumber: nn(a.faxNumber),
-      phoneNumber: nn(a.phoneNumber),
-      portalUrl: nn(a.portalUrl),
-      formName: nn(a.formName),
-      requiredDocuments: a.requiredDocuments,
-      accountTypeNotes: nn(a.accountTypeNotes),
-      extractedBy: a.extractedBy,
-      droppedFields: a.droppedFields,
-    });
   },
 });

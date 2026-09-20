@@ -48,3 +48,7 @@ deployments/local-*.json
 # Internal planning / working notes — never published. Public docs go in docs/.
 ai/
 .private/
+
+# Convex generates these on every run
+convex/_generated/
+dist/

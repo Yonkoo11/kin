@@ -23,11 +23,11 @@ function newToken(): string {
 // Demo cases are deliberately open so a judge can use the product without signing up;
 // everything else belongs to whoever created it.
 async function authorize(ctx: any, caseId: any) {
-  const kase = await ctx.db.get(caseId);
+  const kase = await ctx.db.get("cases", caseId);
   if (!kase) throw new Error("not found");
   if (kase.demo) return kase;
   const identity = await ctx.auth.getUserIdentity();
-  if (!identity || identity.subject !== kase.createdBy) {
+  if (!identity || identity.tokenIdentifier !== kase.createdBy) {
     throw new Error("not found");
   }
   return kase;
@@ -44,7 +44,7 @@ export const createCase = mutation({
       deceasedName,
       token: newToken(),
       demo: isDemo,
-      createdBy: identity?.subject,
+      createdBy: identity?.tokenIdentifier,
     });
   },
 });
@@ -62,13 +62,13 @@ export const board = query({
     await authorize(ctx, caseId);
     const counterparties = await ctx.db
       .query("counterparties")
-      .withIndex("by_case", (q) => q.eq("caseId", caseId))
+      .withIndex("by_caseId", (q) => q.eq("caseId", caseId))
       .collect();
 
     return await Promise.all(
       counterparties.map(async (c) => ({
         ...c,
-        playbook: c.playbookId ? await ctx.db.get(c.playbookId) : null,
+        playbook: c.playbookId ? await ctx.db.get("playbooks", c.playbookId) : null,
       })),
     );
   },
@@ -95,7 +95,7 @@ export const addCounterparty = mutation({
 export const attachPlaybook = internalMutation({
   args: { counterpartyId: v.id("counterparties"), playbookId: v.id("playbooks") },
   handler: async (ctx, { counterpartyId, playbookId }) => {
-    await ctx.db.patch(counterpartyId, { playbookId, state: "ready" });
+    await ctx.db.patch("counterparties", counterpartyId, { playbookId, state: "ready" });
   },
 });
 
@@ -104,9 +104,27 @@ export const markFailed = internalMutation({
   handler: async (ctx, { counterpartyId, reason }) => {
     // A failed lookup is shown, not swallowed. A family that thinks a bank was told
     // when it was not is worse off than one that can see the gap.
-    await ctx.db.patch(counterpartyId, {
+    await ctx.db.patch("counterparties", counterpartyId, {
       state: "needs_action",
       nextAction: `Could not read their page: ${reason}. Check by hand.`,
+    });
+  },
+});
+
+// Set by the reply reader. Kept here rather than in replies.ts because that file is
+// "use node" for the OpenAI SDK, and only actions may live in Node files.
+export const setNextAction = internalMutation({
+  args: {
+    counterpartyId: v.id("counterparties"),
+    state: v.union(v.literal("closed"), v.literal("needs_action")),
+    nextAction: v.string(),
+    quotedAsk: v.union(v.string(), v.null()),
+  },
+  handler: async (ctx, { counterpartyId, state, nextAction, quotedAsk }) => {
+    await ctx.db.patch("counterparties", counterpartyId, {
+      state,
+      // Their own words win over any summary of them.
+      nextAction: quotedAsk ? `${nextAction} They wrote: "${quotedAsk}"` : nextAction,
     });
   },
 });
