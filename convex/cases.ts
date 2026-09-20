@@ -1,6 +1,7 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { rateLimiter } from "./limits";
 
 // A short, human-readable routing token. AgentMail has no plus-addressing or catch-all
 // (confirmed against agent.email/skill.md and docs.agentmail.to, 2026-09-20), so inbound
@@ -38,6 +39,11 @@ export const createCase = mutation({
   handler: async (ctx, { deceasedName, demo }) => {
     const identity = await ctx.auth.getUserIdentity();
     const isDemo = demo ?? false;
+    // Signed-in users are limited per account; anonymous demo traffic shares one bucket.
+    await rateLimiter.limit(ctx, "createCase", {
+      key: identity?.tokenIdentifier ?? "anonymous-demo",
+      throws: true,
+    });
     // A real case with no signed-in owner would be a case nobody can be checked against.
     if (!isDemo && !identity) throw new Error("sign in to open a real estate");
     return await ctx.db.insert("cases", {
@@ -77,7 +83,11 @@ export const board = query({
 export const addCounterparty = mutation({
   args: { caseId: v.id("cases"), name: v.string() },
   handler: async (ctx, { caseId, name }) => {
-    await authorize(ctx, caseId);
+    const kase = await authorize(ctx, caseId);
+    await rateLimiter.limit(ctx, "researchInstitution", {
+      key: kase.demo ? "anonymous-demo" : caseId,
+      throws: true,
+    });
     const id = await ctx.db.insert("counterparties", {
       caseId,
       name,

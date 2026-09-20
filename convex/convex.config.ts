@@ -2,6 +2,7 @@ import { defineApp } from "convex/server";
 import { v } from "convex/values";
 import agentmail from "@agentmail/convex/convex.config";
 import firecrawl from "@firecrawl/firecrawl-convex/convex.config";
+import rateLimiter from "@convex-dev/rate-limiter/convex.config";
 
 // Firecrawl's key is wired through typed component env, not process.env.
 // Verified against @firecrawl/firecrawl-convex 0.1.1 README, 2026-09-19.
@@ -13,6 +14,7 @@ const app = defineApp({
 });
 
 app.use(agentmail);
+app.use(rateLimiter);
 
 app.use(firecrawl, {
   httpPrefix: "/firecrawl/",

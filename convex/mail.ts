@@ -2,6 +2,7 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { components, internal } from "./_generated/api";
 import { AgentMail } from "@agentmail/convex";
+import { rateLimiter } from "./limits";
 
 // ONE shared inbox for every estate. AgentMail's free tier allows 3 inboxes total,
 // and it supports no plus-addressing or catch-all (confirmed against agent.email/skill.md
@@ -45,6 +46,7 @@ export const approveAndSend = mutation({
     if (!emailMatch) throw new Error("no address found on their page");
 
     const kase = await ctx.db.get("cases", counterparty.caseId);
+    await rateLimiter.limit(ctx, "sendMail", { key: "global", throws: true });
 
     const outboundId: string = await agentmail.sendMessage(ctx, INBOX, {
       to: emailMatch[0],

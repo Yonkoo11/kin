@@ -7,12 +7,12 @@
 - **Repo:** private
 - **Frontend:** Convex static hosting
 - **Convex deployment:** not deployed
-- **Components:** @agentmail/convex, @firecrawl/firecrawl-convex
+- **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter
 - **Convex features:** schema, tables, indexes, queries, mutations, actions, HTTP actions, scheduled functions
 - **Auth:** none
 - **AI models:** gpt-5, claude-sonnet-5
 - **Started:** 2026-09-19T10:01:18Z
-- **Last updated:** 2026-09-20T22:38:43Z
+- **Last updated:** 2026-09-20T22:41:00Z
 
 ## Log
 
@@ -95,3 +95,13 @@ Added the model fallback tier the project's access notes had promised since the 
 locked and which did not exist: OpenAI is primary because this event scores whether OpenAI
 does real work, a second provider covers an outage, and every playbook records which model
 produced it (`convex/llm.ts`, `convex/research.ts`, `convex/replies.ts`).
+
+### 2026-09-20 - working tree
+Rate limited the open paths before publishing anything. A judge has to be able to use this
+without signing up, so the demo path is reachable by anyone, and adding an organisation
+spends real Firecrawl and model credit. Without a limit one script could empty the account
+before judging and the app would simply look broken. Registered `@convex-dev/rate-limiter`
+and put a token bucket on research and case creation and a fixed window on sending.
+Verified on the dev deployment: five research calls went through and the sixth and seventh
+were rejected. Convex features: registered component (`convex/limits.ts`, `convex/cases.ts`,
+`convex/mail.ts`, `convex/convex.config.ts`).
