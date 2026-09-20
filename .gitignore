@@ -55,3 +55,22 @@ dist/
 
 # Internal: strategy, demand evidence, personal background. Never published.
 company/
+
+# Vendored agent skills installed by tooling, not project source.
+# They also carry key-generation examples that trip secret scanners.
+.agents/
+.claude/
+
+# Agent instruction files: they describe how the author works, not how the app works.
+CLAUDE.md
+AGENTS.md
+.claudeignore
+.ralph/
+
+# Unfilled entry templates. They go public only once they say something.
+PROJECT_SPEC.md
+INVARIANTS.md
+SUBMISSION.md
+VIDEO_SCRIPT.md
+SOCIAL_POSTS.md
+tsconfig.tsbuildinfo

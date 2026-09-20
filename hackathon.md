@@ -4,7 +4,7 @@
 - **Event:** Convex All Gas Hackathon
 - **What it does:** Works out what each organisation requires when a customer dies, by reading that organisation's own page, then writes to them and tracks every reply on one live case board.
 - **Live app:** https://acrobatic-condor-542.convex.site
-- **Repo:** private
+- **Repo:** https://github.com/Yonkoo11/kin
 - **Frontend:** Convex static hosting
 - **Convex deployment:** https://acrobatic-condor-542.convex.cloud
 - **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter, @convex-dev/static-hosting

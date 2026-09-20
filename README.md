@@ -1,5 +1,10 @@
 # Kin
 
+![channel detection](https://img.shields.io/badge/channel_detection-Wells_Fargo%3A_portal_not_email-1a7f37)
+![grounding](https://img.shields.io/badge/invented_facts_dropped-0_on_clean_runs-1a7f37)
+![rate limit](https://img.shields.io/badge/rate_limit-5_through_6th_rejected-1a7f37)
+![primary model](https://img.shields.io/badge/OpenAI-wired%2C_429_no_credits-b35900)
+
 **The death admin inbox.**
 
 When someone dies, one person has to tell twenty or thirty separate organisations. Five are banks
@@ -33,7 +38,7 @@ their reply in the thread.
 Every output below was produced by a run against the production deployment before this was written.
 
 ```bash
-git clone https://github.com/yonkoo11/kin && cd kin && npm install
+git clone https://github.com/Yonkoo11/kin && cd kin && npm install
 npx convex dev            # creates your own deployment
 npx convex env set FIRECRAWL_API_KEY  fc-...
 npx convex env set AGENTMAIL_API_KEY  ...
