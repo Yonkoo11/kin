@@ -68,3 +68,17 @@ export const list = internalAction({
     }));
   },
 });
+
+// Remove an endpoint that points at a deployment which no longer serves traffic.
+// A stale endpoint accumulates delivery failures and muddies the error rate that
+// is the only signal you have that inbound mail is healthy.
+export const remove = internalAction({
+  args: { webhookId: v.string() },
+  handler: async (_ctx, { webhookId }) => {
+    const res = await fetch(`https://api.agentmail.to/v0/webhooks/${webhookId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${process.env.AGENTMAIL_API_KEY}` },
+    });
+    return { ok: res.ok, status: res.status, webhookId };
+  },
+});

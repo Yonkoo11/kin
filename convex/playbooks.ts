@@ -1,4 +1,4 @@
-import { internalMutation } from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 
 // Lives outside research.ts because that file is "use node" for the OpenAI SDK,
@@ -40,5 +40,18 @@ export const save = internalMutation({
       extractedBy: a.extractedBy,
       droppedFields: a.droppedFields,
     });
+  },
+});
+
+// Everything the letter writer needs, in one read rather than three round trips.
+export const forCounterparty = internalQuery({
+  args: { counterpartyId: v.id("counterparties") },
+  handler: async (ctx, { counterpartyId }) => {
+    const counterparty = await ctx.db.get("counterparties", counterpartyId);
+    if (!counterparty?.playbookId) return null;
+    const playbook = await ctx.db.get("playbooks", counterparty.playbookId);
+    const kase = await ctx.db.get("cases", counterparty.caseId);
+    if (!playbook || !kase) return null;
+    return { playbook, counterparty, deceasedName: kase.deceasedName };
   },
 });

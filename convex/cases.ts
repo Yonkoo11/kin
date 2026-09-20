@@ -106,6 +106,8 @@ export const attachPlaybook = internalMutation({
   args: { counterpartyId: v.id("counterparties"), playbookId: v.id("playbooks") },
   handler: async (ctx, { counterpartyId, playbookId }) => {
     await ctx.db.patch("counterparties", counterpartyId, { playbookId, state: "ready" });
+    // Write the letter straight away. It is shown for approval, never sent on its own.
+    await ctx.scheduler.runAfter(0, internal.drafts.compose, { counterpartyId });
   },
 });
 

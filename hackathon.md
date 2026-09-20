@@ -8,11 +8,11 @@
 - **Frontend:** Convex static hosting
 - **Convex deployment:** https://acrobatic-condor-542.convex.cloud
 - **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter, @convex-dev/static-hosting
-- **Convex features:** schema, tables, indexes, queries, mutations, actions, HTTP actions, scheduled functions
+- **Convex features:** schema, tables, indexes, queries, mutations, internal functions, actions, HTTP actions, scheduled functions
 - **Auth:** none
 - **AI models:** gpt-5, claude-sonnet-5
 - **Started:** 2026-09-19T10:01:18Z
-- **Last updated:** 2026-09-20T23:30:17Z
+- **Last updated:** 2026-09-20T23:36:00Z
 
 ## Log
 
@@ -133,3 +133,21 @@ Known gap, stated rather than hidden: OpenAI is wired as the primary model and c
 returns 429 for lack of credits on this account, so the extraction above ran on the
 declared fallback. Every playbook records which model produced it, and the interface shows
 it. This is a billing state, not a missing integration.
+
+### 2026-09-20 - working tree
+Added the letter writer. It composes from what that organisation's own page asked for
+rather than from a template, which is the point: a family currently sends the same vague
+letter to twenty places and gets twenty different requests for more documents back. The
+draft is written as soon as a playbook lands and is shown for approval; nothing sends on
+its own (`convex/drafts.ts`, `convex/playbooks.ts`, `convex/cases.ts`).
+
+Verified on production. For Wells Fargo the letter addressed the Estate Care Center by
+name, named their Letter of Instruction, listed the certified death certificate, and,
+rather than inventing account details it did not have, asked which account types applied
+and what each would need. No bracketed placeholders.
+
+Cleaned up the webhook endpoint left pointing at the dev deployment, which is offline. A
+stale endpoint accumulates delivery failures and ruins the only signal that inbound mail
+is healthy (`convex/webhooks.ts`). One endpoint remains, on production, listening for
+received, sent, delivered, bounced and rejected. Its signing secret is set on production,
+so inbound mail is signature-verified.
