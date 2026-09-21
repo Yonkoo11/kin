@@ -1,41 +1,159 @@
-:root { color-scheme: light; }
+/* Direction: a letter, not a dashboard. See design/DIRECTION.md.
+   No cards, no shadows, no icons, no animation. Colour twice only. */
+
+:root {
+  color-scheme: light;
+  --ink: #1a1714;
+  --ink-soft: #6b635a;
+  --paper: #faf7f2;
+  --rule: #e3dcd0;
+  --yes: #2c4632;
+  --yes-bg: #dde8dd;
+  --warn: #8a3d2a;
+}
+
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
-  font: 16px/1.6 ui-serif, Georgia, "Times New Roman", serif;
-  color: #1a1714;
-  background: #faf7f2;
-  padding: 0 16px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 17px/1.65 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  padding: 0 20px;
+  -webkit-font-smoothing: antialiased;
 }
-main { max-width: 34rem; margin: 0 auto; padding-block: 12vh 8vh; }
-h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 0.75rem; }
+
+main {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding-block: 10vh 12vh;
+}
+
+h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin: 0 0 1.5rem;
+}
+
+h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 0.6rem;
+}
+
 p { margin: 0 0 1rem; }
-.muted { color: #6b635a; font-size: 0.9rem; }
+.lede { font-size: 1.1rem; }
+.note { color: var(--ink-soft); font-size: 0.9rem; }
+.warn { color: var(--warn); }
+.next { font-weight: 600; }
+
+a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+/* One rule between organisations. No card. */
+article {
+  border-top: 1px solid var(--rule);
+  padding-top: 1.75rem;
+  margin-top: 2.5rem;
+}
+
+/* The first fact on the card, as a sentence. */
+.channel {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+.channel.yes { color: var(--yes); }
+
+/* Their own words, set apart so nobody mistakes them for ours. */
+.quote {
+  border-left: 2px solid var(--rule);
+  padding-left: 0.85rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+dl { margin: 1.5rem 0 0; }
+dt {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 1.25rem;
+}
+dd { margin: 0.25rem 0 0; }
+
+ul { margin: 0.25rem 0 0; padding-left: 1.1rem; }
+li { margin-bottom: 0.2rem; }
+
+/* An address is a string to transcribe exactly. */
+pre, code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.88rem;
+}
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+/* The letter, set like a letter. */
+.letter {
+  margin-top: 2rem;
+  border-top: 1px dashed var(--rule);
+  border-bottom: 1px dashed var(--rule);
+  padding: 1.25rem 0;
+}
+.letter .from { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 0.9rem; }
+.letter .body {
+  font-family: inherit;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  margin-bottom: 1rem;
+}
+
+.offline { margin-top: 1.25rem; }
+
+form { margin: 2rem 0 0; }
+label { display: block; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.row input { flex: 1 1 14rem; }
+
+input {
+  font: inherit;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #d6cdc0;
+  border-radius: 2px;
+  background: #fff;
+  color: var(--ink);
+}
+input:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
 button {
-  font: inherit; cursor: pointer;
-  background: #1a1714; color: #faf7f2;
-  border: 0; border-radius: 3px; padding: 0.55rem 1rem;
+  font: inherit;
+  cursor: pointer;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 0.55rem 1.1rem;
+  margin-top: 0.75rem;
 }
 button:hover { background: #3a332c; }
-form { margin: 2rem 0; display: grid; gap: 0.5rem; }
-label { font-size: 0.85rem; color: #6b635a; }
-input {
-  font: inherit; padding: 0.55rem 0.7rem;
-  border: 1px solid #d8d0c4; border-radius: 3px; background: #fff;
+button:disabled { opacity: 0.5; cursor: default; }
+button.quiet {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: #d6cdc0;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
 }
-.card { border-top: 1px solid #e3dcd0; padding-top: 1.25rem; margin-top: 2rem; }
-.card h2 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.5rem; }
-.tag {
-  display: inline-block; font-size: 0.78rem; letter-spacing: 0.02em;
-  background: #ece5d8; color: #4a423a; padding: 0.15rem 0.5rem; border-radius: 2px;
-  margin: 0 0 0.75rem;
+button.quiet:hover { background: #f0eade; color: var(--ink); }
+
+@media (max-width: 430px) {
+  body { padding: 0 16px; }
+  main { padding-block: 6vh 8vh; }
 }
-.tag.ok { background: #dae8dc; color: #2c4632; }
-.warn { color: #8a3d2a; }
-dl { margin: 0; }
-dt { font-size: 0.8rem; color: #6b635a; margin-top: 0.9rem; }
-dd { margin: 0.15rem 0 0; }
-.mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9rem; white-space: pre-wrap; }
-ul { margin: 0.15rem 0 0; padding-left: 1.1rem; }
-a { color: #1a1714; }
-@media (max-width: 420px) { main { padding-block: 8vh 6vh; } }

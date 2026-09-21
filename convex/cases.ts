@@ -140,3 +140,19 @@ export const setNextAction = internalMutation({
     });
   },
 });
+
+// For organisations that do not accept email: the family posts, faxes or calls, and
+// records that here. Kin never claims an offline step happened on its own.
+export const markSentOffline = mutation({
+  args: { counterpartyId: v.id("counterparties"), how: v.string() },
+  handler: async (ctx, { counterpartyId, how }) => {
+    const cp = await ctx.db.get("counterparties", counterpartyId);
+    if (!cp) throw new Error("not found");
+    await authorize(ctx, cp.caseId);
+    await ctx.db.patch("counterparties", counterpartyId, {
+      state: "awaiting",
+      lastContactAt: Date.now(),
+      nextAction: `Sent by ${how}. Waiting for them to reply.`,
+    });
+  },
+});

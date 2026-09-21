@@ -8,11 +8,11 @@
 - **Frontend:** Convex static hosting
 - **Convex deployment:** https://acrobatic-condor-542.convex.cloud
 - **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter, @convex-dev/static-hosting
-- **Convex features:** schema, tables, indexes, queries, mutations, internal functions, actions, HTTP actions, scheduled functions
+- **Convex features:** schema, tables, indexes, queries, mutations, internal functions, actions, HTTP actions, scheduled functions, realtime queries
 - **Auth:** none
 - **AI models:** gpt-5, claude-sonnet-5
 - **Started:** 2026-09-19T10:01:18Z
-- **Last updated:** 2026-09-20T23:36:00Z
+- **Last updated:** 2026-09-21T04:40:00Z
 
 ## Log
 
@@ -151,3 +151,29 @@ stale endpoint accumulates delivery failures and ruins the only signal that inbo
 is healthy (`convex/webhooks.ts`). One endpoint remains, on production, listening for
 received, sent, delivered, bounced and rejected. Its signing secret is set on production,
 so inbound mail is signature-verified.
+
+### 2026-09-21 - working tree
+Built the screen, to a direction written down first rather than discovered while styling
+(`design/DIRECTION.md`). The direction is "a letter, not a dashboard": this product's output
+is a letter, and the reader is someone awake since 4am who is frightened of getting it wrong.
+Serif on a cream ground, one column, no cards, no shadows, no icons, no animation, status as
+a sentence rather than a coloured badge, colour used twice only. Comparables studied were
+GOV.UK service pages, bank bereavement flows, and a physical estate letter.
+
+The card now carries the whole path: how that organisation will accept the news, in their own
+quoted words; the address in monospace with a copy button because it is a string to transcribe
+exactly; the form they name; what they ask for; how it changes by account type; the drafted
+letter; and then either a send button or, for the majority who will not take email, the exact
+instruction for that channel (`src/Organisation.tsx`, `src/index.css`).
+
+Looked at the render rather than trusting the code, and fixed four things only visible that
+way: the extracted upload-page link was never shown although it is the single most useful
+thing on a card for an organisation that only accepts uploads; the offline button said "I have
+posted it" for a company that takes uploads or phone calls; the letter body ran into its
+attribution line; and the channel line competed with the organisation name for weight.
+
+Verified against production with a real browser: entering "Wells Fargo" produced the estate
+address including its mail-stop code, the Letter of Instruction, the fax, the phone, the
+per-account-type requirements, and a drafted letter that asked how the accounts were titled
+rather than inventing it. The card correctly refused to offer a send button and said
+"Use their upload page above" instead (`convex/cases.ts` markSentOffline).
