@@ -3,7 +3,7 @@
 ![channel detection](https://img.shields.io/badge/channel_detection-Wells_Fargo%3A_portal_not_email-1a7f37)
 ![grounding](https://img.shields.io/badge/invented_facts_dropped-0_on_clean_runs-1a7f37)
 ![rate limit](https://img.shields.io/badge/rate_limit-5_through_6th_rejected-1a7f37)
-![primary model](https://img.shields.io/badge/OpenAI-wired%2C_429_no_credits-b35900)
+![primary model](https://img.shields.io/badge/primary_model-gpt--5_on_the_live_site-1a7f37)
 
 **The death admin inbox.**
 
@@ -117,7 +117,7 @@ Model output is never spread into the database; fields are picked by hand.
 | Writes the letter from their stated requirements | Verified on production. |
 | Rate limiting | Verified: five calls through, sixth rejected. |
 | Inbound webhook, signature-verified | Registered on production, secret set. **Round trip not yet exercised.** |
-| OpenAI as the primary model | Wired, currently returning 429 for lack of credits on this account. Every run so far used the declared fallback, and every playbook records which model produced it. |
+| OpenAI as the primary model | Running on the live site. A production run on 2026-09-22 recorded `extractedBy: gpt-5` for the page extraction and the letter, with nothing dropped by the grounding check. Reachable three ways in order: Convex AI Gateway, OpenAI directly, then a declared fallback; every playbook records which one ran. |
 | Send path end to end | **Not yet exercised.** No organisation tested so far accepts email. |
 | Auth, multi-user cases | **Not built yet.** Demo cases are open by design so judges need no signup. |
 

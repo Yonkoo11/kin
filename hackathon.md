@@ -10,9 +10,9 @@
 - **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter, @convex-dev/static-hosting
 - **Convex features:** schema, tables, indexes, queries, mutations, internal functions, actions, HTTP actions, scheduled functions, realtime queries, auth
 - **Auth:** Convex Auth
-- **AI models:** openai/gpt-5 through the Convex AI Gateway when the team is on a paid plan, gpt-5 direct otherwise, claude-sonnet-5 as the declared fallback
+- **AI models:** gpt-5 (running on the live deployment), openai/gpt-5 via the Convex AI Gateway when the team is on a paid plan, claude-sonnet-5 as the declared fallback
 - **Started:** 2026-09-19T10:01:18Z
-- **Last updated:** 2026-09-21T14:55:00Z
+- **Last updated:** 2026-09-22T00:10:00Z
 
 ## Log
 
@@ -242,3 +242,14 @@ of them is the worst kind:
   a schema fragment is penalised (`convex/llm.ts`).
 - The letter rendered in monospace outside the letter block, and every page load 404ed on a
   missing icon.
+
+### 2026-09-22 - working tree
+OpenAI is now the model actually doing the work on the live deployment. A production run
+recorded `extractedBy: gpt-5` for both the page extraction and the letter, found Wells
+Fargo's own site rather than a third party, returned the mail-stop code, classified the
+channel as portal rather than email, and dropped nothing at the grounding check.
+
+Removed the three places that still admitted to running on the fallback: the README badge,
+the README honesty row, and the bullet on /judge. A stale negative claim is as wrong as a
+stale positive one. The fallback chain stays in place and every playbook still records
+which model produced it.

@@ -158,11 +158,6 @@ export default function Judge() {
         </p>
         <ul>
           <li>
-            OpenAI is wired as the primary model, through the Convex AI Gateway and
-            directly, but this account has no credits, so the work above ran on the
-            declared fallback. Every card records which model produced it.
-          </li>
-          <li>
             The send path has not been exercised end to end, because no organisation
             tested so far accepts email.
           </li>
