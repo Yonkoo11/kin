@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
 import Organisation from "./Organisation";
+import Forwarding from "./Forwarding";
 
 export default function App() {
   // A judge lands here with no account. The demo estate opens on the first click.
@@ -76,6 +77,8 @@ export default function App() {
           </form>
 
           {error && <p className="warn">{error}</p>}
+
+          <Forwarding caseId={caseId} />
 
           {board === undefined && <p className="note">Loading.</p>}
           {board?.length === 0 && (

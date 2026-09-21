@@ -213,6 +213,14 @@ export default function Organisation({ c }: { c: any }) {
             </p>
           )}
 
+          {p.sourceIsOwnDomain === false && (
+            <p className="warn">
+              This did not come from {c.name}&rsquo;s own website. It came from somebody
+              writing about them, which can read exactly like policy and is not. Confirm
+              it with {c.name} before you send anything.
+            </p>
+          )}
+
           <p className="note">
             Read on {new Date(p.scrapedAt).toLocaleDateString()} from{" "}
             {src ? (

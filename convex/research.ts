@@ -78,6 +78,75 @@ function normalize(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+// Which result to read. This matters more than anything else in the product.
+//
+// A search for "<company> report a death" surfaces the company's own page, but it also
+// surfaces user forums, estate-guide businesses and blog posts. A forum thread reads
+// like policy and is not: one run pulled "your husband's account" out of a Spotify
+// community post and presented it as a requirement.
+//
+// So prefer the organisation's own domain, push known third parties down, and record
+// which kind of source was used so the card can say so rather than implying authority
+// it does not have.
+const THIRD_PARTY = [
+  "reddit.", "quora.", "facebook.", "twitter.", "x.com", "medium.com", "blogspot.",
+  "wordpress.", "wikipedia.org", "youtube.", "linkedin.", "pinterest.",
+  "swiftprobate.", "simplytrust.", "mygoodtrust.", "clearestate.", "everplans.",
+  "legalzoom.", "nerdwallet.", "bankrate.", "investopedia.", "thebalance",
+];
+const FORUM_HINT = ["community.", "forum.", "forums.", "/t5/", "/discussions/", "answers."];
+
+function orgTokens(name: string): string[] {
+  return name
+    .toLowerCase()
+    .replace(/\b(bank|group|inc|llc|ltd|plc|the|and|co|corp|company|n\.a\.|na)\b/g, " ")
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length > 2);
+}
+
+function scoreResult(url: string, name: string): number {
+  let host: string;
+  let full: string;
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:") return -100;
+    host = u.hostname.toLowerCase().replace(/^www\./, "");
+    full = url.toLowerCase();
+  } catch {
+    return -100;
+  }
+
+  let score = 0;
+  const tokens = orgTokens(name);
+  const registrable = host.split(".").slice(-2).join(".");
+
+  // The organisation's own domain is worth more than anything else.
+  if (tokens.length && tokens.every((t) => registrable.includes(t))) score += 10;
+  else if (tokens.some((t) => registrable.includes(t))) score += 6;
+
+  if (THIRD_PARTY.some((d) => host.includes(d))) score -= 12;
+  if (FORUM_HINT.some((h) => host.includes(h) || full.includes(h))) score -= 8;
+
+  // Pages that are plainly about this, on any host, beat generic ones.
+  if (/bereave|deceased|estate|death|probate|survivor/.test(full)) score += 3;
+
+  return score;
+}
+
+// Did the facts come from the organisation itself, or from somebody writing about it?
+function isOwnDomain(url: string, name: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+    if (THIRD_PARTY.some((d) => host.includes(d))) return false;
+    if (FORUM_HINT.some((h) => host.includes(h))) return false;
+    const registrable = host.split(".").slice(-2).join(".");
+    const tokens = orgTokens(name);
+    return tokens.length > 0 && tokens.some((t) => registrable.includes(t));
+  } catch {
+    return false;
+  }
+}
+
 function groundedIn(value: string | null, source: string): boolean {
   if (!value) return false;
   const n = normalize(value);
@@ -96,10 +165,41 @@ export const researchInstitution = internalAction({
       { limit: 5, sources: ["web"] },
     );
 
-    const results = found.web ?? [];
-    const candidate = results.find((r) => typeof (r as any).url === "string") as
-      | { url: string }
-      | undefined;
+    const results = (found.web ?? []).filter((r: any) => typeof r.url === "string") as Array<{
+      url: string;
+    }>;
+    // Rank rather than take the first. Search order is not source quality.
+    const ranked = results
+      .map((r) => ({ r, score: scoreResult(r.url, name) }))
+      .sort((a, b) => b.score - a.score);
+
+    let candidate = ranked[0]?.score > -50 ? ranked[0].r : undefined;
+
+    // If the best the open web offered is somebody writing *about* this organisation,
+    // ask again with the search pinned to the organisation's own site before settling.
+    // A page they publish themselves, even a thin one, outranks a forum thread that
+    // reads like policy.
+    if (!candidate || !isOwnDomain(candidate.url, name)) {
+      const own = ranked.find((x) => isOwnDomain(x.r.url, name))?.r.url;
+      const guess = own
+        ? new URL(own).hostname.replace(/^www\./, "").split(".").slice(-2).join(".")
+        : `${orgTokens(name).join("")}.com`;
+      try {
+        const second = await firecrawl.search(ctx, `${name} bereavement deceased account close`, {
+          limit: 5,
+          sources: ["web"],
+          includeDomains: [guess],
+        });
+        const onSite = ((second.web ?? []) as any[])
+          .filter((r) => typeof r.url === "string")
+          .map((r) => ({ r, score: scoreResult(r.url, name) }))
+          .sort((a, b) => b.score - a.score)[0];
+        if (onSite && isOwnDomain(onSite.r.url, name)) candidate = onSite.r;
+      } catch {
+        // The constrained search is an improvement, not a requirement. If it fails we
+        // keep the first result and the card says where it came from.
+      }
+    }
 
     if (!candidate?.url) {
       await ctx.runMutation(internal.cases.markFailed, {
@@ -201,6 +301,7 @@ export const researchInstitution = internalAction({
       sourceUrl: candidate.url,
       extractedBy: model,
       droppedFields: dropped,
+      sourceIsOwnDomain: isOwnDomain(candidate.url, name),
       channel: String(parsed.channel ?? "unknown"),
       channelNote: parsed.channelNote ?? null,
       postalAddress: parsed.postalAddress ?? null,

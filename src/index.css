@@ -157,3 +157,11 @@ button.quiet:hover { background: #f0eade; color: var(--ink); }
   body { padding: 0 16px; }
   main { padding-block: 6vh 8vh; }
 }
+
+/* The forwarding panel. Set apart from the board by a rule, not a box. */
+.forwarding {
+  border-top: 1px solid var(--rule);
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+}
+.forwarding h2 { margin-bottom: 0.5rem; }

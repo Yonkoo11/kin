@@ -10,9 +10,9 @@
 - **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter, @convex-dev/static-hosting
 - **Convex features:** schema, tables, indexes, queries, mutations, internal functions, actions, HTTP actions, scheduled functions, realtime queries
 - **Auth:** none
-- **AI models:** gpt-5, claude-sonnet-5
+- **AI models:** openai/gpt-5 through the Convex AI Gateway when the team is on a paid plan, gpt-5 direct otherwise, claude-sonnet-5 as the declared fallback
 - **Started:** 2026-09-19T10:01:18Z
-- **Last updated:** 2026-09-21T04:40:00Z
+- **Last updated:** 2026-09-21T06:20:00Z
 
 ## Log
 
@@ -177,3 +177,37 @@ address including its mail-stop code, the Letter of Instruction, the fax, the ph
 per-account-type requirements, and a drafted letter that asked how the accounts were titled
 rather than inventing it. The card correctly refused to offer a send button and said
 "Use their upload page above" instead (`convex/cases.ts` markSentOffline).
+
+### 2026-09-21 - working tree
+Three ways to reach a model, tried in order, with the product recording which one ran:
+the Convex AI Gateway serving OpenAI models, then OpenAI directly, then a declared
+fallback. The gateway is preferred because Convex holds the credentials, so there is no
+model key in the deployment at all. Confirmed on the free plan that it fails with exactly
+`AiGatewayDisabled` and the chain degrades cleanly; upgrading the plan switches OpenAI on
+with no code change (`convex/llm.ts`).
+
+Built forwarding, which is how Kin learns who must be told. Nobody has a list of
+everything a dead person paid for; their inbox does. An address is registered against an
+estate, anything forwarded from it arrives through the signed webhook, and the message is
+read for the one organisation being paid. Verified on production: a forwarded subscription
+bill produced the right organisation, ignoring the mail provider, the card network and the
+person's own name, and the research ran on it automatically
+(`convex/intake.ts`, `convex/inbound.ts`, `src/Forwarding.tsx`).
+
+Fixed the most serious quality problem in the product, found by reading a real result
+rather than by testing the code. A search for a company's death process also surfaces user
+forums and estate-guide businesses, and a forum thread reads exactly like policy. One run
+pulled a phrase out of a community post and presented it as a requirement. Search results
+are now ranked, the organisation's own domain is strongly preferred, a second search is
+run pinned to that domain when the open web only offers commentary, and the playbook
+records whether the facts came from the organisation itself. When they did not, the card
+says so and tells the family to confirm before sending anything (`convex/research.ts`).
+
+Some organisations, Spotify and Netflix among them, publish no bereavement process at all.
+The honest result there is a flagged third-party source rather than an invented official
+one, and that is what the card shows.
+
+Reworked the rate limits after being blocked by them while testing, which exposed a real
+flaw: all anonymous traffic shared one bucket, so one visitor could lock out the next.
+During judging that is the worst possible failure. Limits are now per estate with a global
+backstop sized for many people at once (`convex/limits.ts`).

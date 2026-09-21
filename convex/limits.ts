@@ -1,19 +1,30 @@
 import { RateLimiter, MINUTE, HOUR } from "@convex-dev/rate-limiter";
 import { components } from "./_generated/api";
 
-// A judge must be able to use this without signing up, which means the demo path is
-// open to the internet. Adding an organisation spends real Firecrawl and OpenAI credit,
-// so without a limit a single script could empty the account before judging starts and
-// the app would simply look broken.
+// The demo path is open to the internet on purpose: a judge must be able to use this
+// without signing up. Adding an organisation spends real Firecrawl and model credit,
+// so it has to be bounded.
 //
-// Token bucket rather than a fixed window: a judge clicking through three organisations
-// in ten seconds should not be blocked, while sustained automated use is.
+// Two tiers, because one is wrong in both directions. A single shared bucket meant one
+// visitor could lock out the next, which during judging is the worst possible failure.
+// Per-case buckets alone would let a script open unlimited cases.
+//
+//   per case   generous enough that nobody hits it in normal use
+//   global     a backstop sized for many people at once, not for one
 export const rateLimiter = new RateLimiter(components.rateLimiter, {
-  // The expensive one. Each call is a web search, a page read and a model call.
-  researchInstitution: { kind: "token bucket", rate: 20, period: HOUR, capacity: 5 },
-  // Cheap, but unbounded case creation is still a way to fill a database.
-  createCase: { kind: "token bucket", rate: 10, period: HOUR, capacity: 3 },
-  // Sending mail costs reputation, not just credit, and the free tier allows
-  // 100 messages a day across the whole account.
+  // Each estate gets its own allowance. A burst of eight covers someone working
+  // through a real list; it refills faster than anyone types.
+  researchPerCase: { kind: "token bucket", rate: 60, period: HOUR, capacity: 8 },
+  // Backstop across everyone. Sized so concurrent visitors do not collide.
+  researchGlobal: { kind: "token bucket", rate: 600, period: HOUR, capacity: 60 },
+
+  // Opening a case is cheap; the expensive work is bounded above.
+  createCase: { kind: "token bucket", rate: 300, period: HOUR, capacity: 40 },
+
+  // Sending costs sender reputation, not just credit, and the mail account allows
+  // 100 messages a day across everything.
   sendMail: { kind: "fixed window", rate: 20, period: HOUR },
+
+  // Registering a forwarding address. Low, because each one widens who can write in.
+  addMember: { kind: "token bucket", rate: 20, period: HOUR, capacity: 5 },
 });

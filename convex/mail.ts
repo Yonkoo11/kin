@@ -105,3 +105,17 @@ export const draftFor = query({
       .order("desc")
       .first(),
 });
+
+// The address people forward to. Public on purpose: it is the product's front door.
+export const inboxAddress = query({
+  args: {},
+  handler: async () => process.env.AGENTMAIL_INBOX_ID ?? null,
+});
+
+export const members = query({
+  args: { caseId: v.id("cases") },
+  handler: async (ctx, { caseId }) => {
+    const kase = await ctx.db.get("cases", caseId);
+    return kase?.memberEmails ?? [];
+  },
+});

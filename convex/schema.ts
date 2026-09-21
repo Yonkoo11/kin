@@ -23,7 +23,13 @@ export default defineSchema({
     token: v.string(),
     createdBy: v.optional(v.string()),
     demo: v.boolean(),
-  }).index("by_token", ["token"]),
+    // Addresses allowed to forward things in. This is how a forwarded bill finds its
+    // case: AgentMail has no plus-addressing and there is one shared inbox, so the
+    // sender is the routing key. Lowercased on write.
+    memberEmails: v.optional(v.array(v.string())),
+  })
+    .index("by_token", ["token"])
+    .index("by_memberEmails", ["memberEmails"]),
 
   // One organisation that must be told, within one case.
   counterparties: defineTable({
@@ -66,6 +72,9 @@ export default defineSchema({
     // Facts the model returned that were NOT found on the page, and were therefore
     // thrown away. Shown in the interface: a silently missing address is a trap.
     droppedFields: v.optional(v.array(v.string())),
+    // Did these facts come from the organisation itself, or from somebody writing
+    // about it? A forum thread reads exactly like policy and is not policy.
+    sourceIsOwnDomain: v.optional(v.boolean()),
   }).index("by_institutionName", ["institutionName"]),
 
   // Every outbound message is drafted, shown, and sent on a human click. Never auto-sent.

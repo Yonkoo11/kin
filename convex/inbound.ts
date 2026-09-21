@@ -42,8 +42,27 @@ export const onMessage = internalMutation({
     }
 
     if (!counterparty) {
-      // Unmatched mail is not dropped silently. It is the forward-a-bill intake path,
-      // handled in T12, and until then it is visibly unhandled rather than pretended away.
+      // Route 3: not a reply at all. Somebody forwarded a bill in.
+      //
+      // This is how Kin learns who must be told, and it is the part families find
+      // hardest. Nobody has a list of everything the dead person paid for. Their
+      // inbox does.
+      //
+      // AgentMail has no plus-addressing and there is one shared inbox, so the
+      // sender address is the routing key, and only addresses registered on a case
+      // can reach it.
+      const from: string = message?.from ?? message?.sender ?? "";
+      const addr = from.match(/[\w.+-]+@[\w-]+\.[\w.-]+/)?.[0];
+      if (!addr) return null;
+
+      const kase = await ctx.runQuery(internal.cases.caseForSender, { email: addr });
+      if (!kase) return null;
+
+      await ctx.scheduler.runAfter(0, internal.intake.identify, {
+        caseId: kase._id,
+        subject,
+        body: body.slice(0, 8000),
+      });
       return null;
     }
 

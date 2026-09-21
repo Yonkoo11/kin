@@ -1,4 +1,4 @@
-import { query, mutation, internalMutation } from "./_generated/server";
+import { query, mutation, internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { rateLimiter } from "./limits";
@@ -41,7 +41,7 @@ export const createCase = mutation({
     const isDemo = demo ?? false;
     // Signed-in users are limited per account; anonymous demo traffic shares one bucket.
     await rateLimiter.limit(ctx, "createCase", {
-      key: identity?.tokenIdentifier ?? "anonymous-demo",
+      key: identity?.tokenIdentifier ?? "anonymous",
       throws: true,
     });
     // A real case with no signed-in owner would be a case nobody can be checked against.
@@ -83,11 +83,11 @@ export const board = query({
 export const addCounterparty = mutation({
   args: { caseId: v.id("cases"), name: v.string() },
   handler: async (ctx, { caseId, name }) => {
-    const kase = await authorize(ctx, caseId);
-    await rateLimiter.limit(ctx, "researchInstitution", {
-      key: kase.demo ? "anonymous-demo" : caseId,
-      throws: true,
-    });
+    await authorize(ctx, caseId);
+    // Per estate first, so one visitor cannot exhaust another's allowance, then a
+    // global backstop so a script cannot exhaust everyone's.
+    await rateLimiter.limit(ctx, "researchPerCase", { key: caseId, throws: true });
+    await rateLimiter.limit(ctx, "researchGlobal", { key: "all", throws: true });
     const id = await ctx.db.insert("counterparties", {
       caseId,
       name,
@@ -153,6 +153,75 @@ export const markSentOffline = mutation({
       state: "awaiting",
       lastContactAt: Date.now(),
       nextAction: `Sent by ${how}. Waiting for them to reply.`,
+    });
+  },
+});
+
+// Forwarding is how Kin learns who must be told. A person's bills are the only
+// complete list of their recurring relationships, and the family already has them
+// in an inbox. Registering the address is what lets a forwarded bill find its case.
+export const addMemberEmail = mutation({
+  args: { caseId: v.id("cases"), email: v.string() },
+  handler: async (ctx, { caseId, email }) => {
+    const kase = await authorize(ctx, caseId);
+    await rateLimiter.limit(ctx, "addMember", { key: caseId, throws: true });
+    const clean = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)) throw new Error("that does not look like an email address");
+    const existing = kase.memberEmails ?? [];
+    if (existing.includes(clean)) return;
+    if (existing.length >= 6) throw new Error("that is as many addresses as one estate can register");
+    await ctx.db.patch("cases", caseId, { memberEmails: [...existing, clean] });
+  },
+});
+
+// Used by the inbound router, which runs before any user is known.
+export const caseForSender = internalQuery({
+  args: { email: v.string() },
+  handler: async (ctx, { email }) => {
+    const clean = email.trim().toLowerCase();
+    // Small table in practice; one estate has a handful of addresses.
+    for await (const kase of ctx.db.query("cases")) {
+      if ((kase.memberEmails ?? []).includes(clean)) return kase;
+    }
+    return null;
+  },
+});
+
+// Records what a forwarded message turned into, and starts the research if it
+// named an organisation we do not already have on this case.
+export const recordIntake = internalMutation({
+  args: {
+    caseId: v.id("cases"),
+    subject: v.string(),
+    organisation: v.union(v.string(), v.null()),
+    note: v.union(v.string(), v.null()),
+  },
+  handler: async (ctx, { caseId, subject, organisation, note }) => {
+    if (!organisation) {
+      await ctx.db.insert("counterparties", {
+        caseId,
+        name: `Something forwarded: "${subject.slice(0, 60)}"`,
+        state: "needs_action",
+        nextAction: note ?? "No organisation was named in it. Add them by hand above.",
+      });
+      return;
+    }
+
+    const existing = await ctx.db
+      .query("counterparties")
+      .withIndex("by_caseId", (q) => q.eq("caseId", caseId))
+      .collect();
+    if (existing.some((c) => c.name.toLowerCase() === organisation.toLowerCase())) return;
+
+    const id = await ctx.db.insert("counterparties", {
+      caseId,
+      name: organisation,
+      state: "researching",
+      nextAction: note ?? undefined,
+    });
+    await ctx.scheduler.runAfter(0, internal.research.researchInstitution, {
+      counterpartyId: id,
+      name: organisation,
     });
   },
 });

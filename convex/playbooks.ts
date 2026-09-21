@@ -20,6 +20,7 @@ export const save = internalMutation({
     requiredDocuments: v.array(v.string()),
     accountTypeNotes: v.union(v.string(), v.null()),
     droppedFields: v.array(v.string()),
+    sourceIsOwnDomain: v.boolean(),
   },
   handler: async (ctx, a) => {
     const nn = (s: string | null) => (s === null ? undefined : s);
@@ -39,6 +40,7 @@ export const save = internalMutation({
       accountTypeNotes: nn(a.accountTypeNotes),
       extractedBy: a.extractedBy,
       droppedFields: a.droppedFields,
+      sourceIsOwnDomain: a.sourceIsOwnDomain,
     });
   },
 });
