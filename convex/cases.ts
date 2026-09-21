@@ -2,6 +2,7 @@ import { query, mutation, internalMutation, internalQuery } from "./_generated/s
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { rateLimiter } from "./limits";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 // A short, human-readable routing token. AgentMail has no plus-addressing or catch-all
 // (confirmed against agent.email/skill.md and docs.agentmail.to, 2026-09-20), so inbound
@@ -27,30 +28,29 @@ async function authorize(ctx: any, caseId: any) {
   const kase = await ctx.db.get("cases", caseId);
   if (!kase) throw new Error("not found");
   if (kase.demo) return kase;
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity || identity.tokenIdentifier !== kase.createdBy) {
-    throw new Error("not found");
-  }
+  const userId = await getAuthUserId(ctx);
+  // "not found" rather than "not yours": whether an estate exists is itself private.
+  if (!userId || userId !== kase.createdBy) throw new Error("not found");
   return kase;
 }
 
 export const createCase = mutation({
   args: { deceasedName: v.string(), demo: v.optional(v.boolean()) },
   handler: async (ctx, { deceasedName, demo }) => {
-    const identity = await ctx.auth.getUserIdentity();
+    const userId = await getAuthUserId(ctx);
     const isDemo = demo ?? false;
     // Signed-in users are limited per account; anonymous demo traffic shares one bucket.
     await rateLimiter.limit(ctx, "createCase", {
-      key: identity?.tokenIdentifier ?? "anonymous",
+      key: userId ?? "anonymous",
       throws: true,
     });
     // A real case with no signed-in owner would be a case nobody can be checked against.
-    if (!isDemo && !identity) throw new Error("sign in to open a real estate");
+    if (!isDemo && !userId) throw new Error("sign in to open a real estate");
     return await ctx.db.insert("cases", {
       deceasedName,
       token: newToken(),
       demo: isDemo,
-      createdBy: identity?.tokenIdentifier,
+      createdBy: userId ?? undefined,
     });
   },
 });
@@ -223,5 +223,18 @@ export const recordIntake = internalMutation({
       counterpartyId: id,
       name: organisation,
     });
+  },
+});
+
+// The estates this person owns. Demo estates belong to nobody and never appear here.
+export const myCases = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+    const all = await ctx.db.query("cases").collect();
+    return all
+      .filter((c) => c.createdBy === userId && !c.demo)
+      .map((c) => ({ _id: c._id, deceasedName: c.deceasedName, _creationTime: c._creationTime }));
   },
 });

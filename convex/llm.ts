@@ -124,14 +124,24 @@ function bestJsonObject(text: string, schema: any): any | null {
   let bestScore = -1;
   for (const c of allJsonObjects(text)) {
     if (c === null || typeof c !== "object" || Array.isArray(c)) continue;
-    // Score by how many required fields are present AND carry a real value.
-    // A restated schema has the key names but no answers.
+    // Score by how many required fields are present, carry a real value, AND are of
+    // the type the schema declares.
+    //
+    // The type check is load-bearing. A model often restates the schema before
+    // answering, and the restatement has every required key with a non-empty value,
+    // so counting presence alone scores it as high as the real answer. Ties went to
+    // whichever came first, and a letter body arrived as {type:"string",...} and
+    // rendered as "[object Object]".
     let score = 0;
     for (const k of required) {
       if (!(k in c)) continue;
       score += 1;
       const v = (c as any)[k];
-      if (v !== null && v !== undefined && v !== "" && !(Array.isArray(v) && v.length === 0)) score += 1;
+      if (v === null || v === undefined || v === "" || (Array.isArray(v) && v.length === 0)) continue;
+      score += 1;
+      if (typeMatches(v, schema?.properties?.[k])) score += 2;
+      // A value that is itself a schema fragment is the restatement, not the answer.
+      if (v && typeof v === "object" && !Array.isArray(v) && "type" in v) score -= 4;
     }
     if (score > bestScore) {
       bestScore = score;
@@ -166,4 +176,15 @@ function allJsonObjects(text: string): any[] {
     }
   }
   return found;
+}
+
+// Does this value match the type the schema declares for it? JSON Schema allows a
+// list of types (["string","null"]), so accept any of them.
+function typeMatches(value: any, prop: any): boolean {
+  if (!prop) return false;
+  const declared: string[] = Array.isArray(prop.type) ? prop.type : prop.type ? [prop.type] : [];
+  if (declared.length === 0) return false;
+  const actual =
+    value === null ? "null" : Array.isArray(value) ? "array" : typeof value === "number" ? "number" : typeof value;
+  return declared.includes(actual);
 }

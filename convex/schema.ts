@@ -1,4 +1,5 @@
 import { defineSchema, defineTable } from "convex/server";
+import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
 // How an institution actually accepts a death notification.
@@ -15,6 +16,9 @@ export const channel = v.union(
 );
 
 export default defineSchema({
+  // users, sessions, accounts and the rest, owned by @convex-dev/auth.
+  ...authTables,
+
   // One estate. Multiple family members share it.
   cases: defineTable({
     deceasedName: v.string(),

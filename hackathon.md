@@ -8,11 +8,11 @@
 - **Frontend:** Convex static hosting
 - **Convex deployment:** https://acrobatic-condor-542.convex.cloud
 - **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/rate-limiter, @convex-dev/static-hosting
-- **Convex features:** schema, tables, indexes, queries, mutations, internal functions, actions, HTTP actions, scheduled functions, realtime queries
-- **Auth:** none
+- **Convex features:** schema, tables, indexes, queries, mutations, internal functions, actions, HTTP actions, scheduled functions, realtime queries, auth
+- **Auth:** Convex Auth
 - **AI models:** openai/gpt-5 through the Convex AI Gateway when the team is on a paid plan, gpt-5 direct otherwise, claude-sonnet-5 as the declared fallback
 - **Started:** 2026-09-19T10:01:18Z
-- **Last updated:** 2026-09-21T06:20:00Z
+- **Last updated:** 2026-09-21T14:55:00Z
 
 ## Log
 
@@ -211,3 +211,34 @@ Reworked the rate limits after being blocked by them while testing, which expose
 flaw: all anonymous traffic shared one bucket, so one visitor could lock out the next.
 During judging that is the worst possible failure. Limits are now per estate with a global
 backstop sized for many people at once (`convex/limits.ts`).
+
+### 2026-09-21 - working tree
+Added accounts, with `@convex-dev/auth` and a password provider rather than an OAuth one.
+The people this is for are settling an estate, often on a borrowed laptop, often not the
+person whose Google account the deceased's mail sits in; a third-party login is a wall at
+the worst moment. Convex Auth v2 is labelled "super alpha" by the organisers, so this uses
+the stable package. Signing in is optional and late: the example estate needs no account,
+because a real estate is the only thing that has to belong to somebody. Ownership moved
+onto the auth user id, and a case that is not yours reads as "not found" rather than
+"not yours", because whether an estate exists is itself private
+(`convex/auth.ts`, `convex/auth.config.ts`, `src/Account.tsx`).
+
+Added `/judge`, which runs the product live rather than describing it. It opens an estate,
+enters one input, and annotates each stage as the real data arrives: the page found without
+any address in our code, the mail-stop code extracted and checked back against that page,
+the channel decision that refuses to offer a send button to a bank that will not take
+email, and the letter written from their own stated requirements. It ends with a section
+headed "What is not true yet" (`src/Judge.tsx`).
+
+Three bugs found by looking at the rendered page rather than by testing the code, and one
+of them is the worst kind:
+
+- **The letter signed off as the dead person.** In a letter announcing their death. The
+  prompt now states that the writer is the person handling the estate, is not the deceased,
+  and must end with no name at all rather than borrow theirs.
+- A letter body arrived as `[object Object]`. The fallback's JSON picker scored a model's
+  restatement of the schema as highly as its actual answer, because a restatement has every
+  required key with a non-empty value. Scoring is now type-aware, and a value that is itself
+  a schema fragment is penalised (`convex/llm.ts`).
+- The letter rendered in monospace outside the letter block, and every page load 404ed on a
+  missing icon.

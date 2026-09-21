@@ -105,8 +105,8 @@ pre {
   padding: 1.25rem 0;
 }
 .letter .from { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 0.9rem; }
-.letter .body {
-  font-family: inherit;
+.body {
+  font-family: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
   font-size: 1rem;
   white-space: pre-wrap;
   margin-bottom: 1rem;
@@ -165,3 +165,42 @@ button.quiet:hover { background: #f0eade; color: var(--ink); }
   padding-top: 1.75rem;
 }
 .forwarding h2 { margin-bottom: 0.5rem; }
+
+/* A button that reads as a link, for actions that are not the point of the page. */
+button.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+button.link:hover { background: none; color: var(--warn); }
+
+.account {
+  border-top: 1px solid var(--rule);
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+}
+.account form { margin-top: 1rem; }
+.account input { display: block; width: 100%; margin-bottom: 0.9rem; }
+.estates { list-style: none; padding: 0; margin: 0 0 1rem; }
+.estates li { margin-bottom: 0.4rem; }
+
+/* The judge tour. Same typography; the only addition is one highlighted block,
+   because one fact on that page carries the whole argument. */
+.mono-line {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  word-break: break-all;
+  color: var(--ink-soft);
+}
+pre.highlight {
+  background: #f0eade;
+  border-left: 2px solid var(--ink);
+  padding: 0.9rem 1rem;
+  margin: 0.5rem 0 1rem;
+}

@@ -3,8 +3,12 @@ import { httpAction } from "./_generated/server";
 import { components } from "./_generated/api";
 import { AgentMail } from "@agentmail/convex";
 import { registerStaticRoutes } from "@convex-dev/static-hosting";
+import { auth } from "./auth";
 
 const http = httpRouter();
+
+// Sign-in, sign-out and token refresh routes.
+auth.addHttpRoutes(http);
 const agentmail = new AgentMail(components.agentmail);
 
 // AgentMail posts here when mail arrives or a delivery state changes.
