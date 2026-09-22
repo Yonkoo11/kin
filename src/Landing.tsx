@@ -2,14 +2,9 @@ import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// The headline is the one line a model is not allowed to write (copy-rules §1),
-// because an invented headline silently becomes the product's voice. Swap the
-// string below; nothing else depends on it.
-//
-// Alternatives offered to the author:
-//   B  "Find out what each one actually needs, before you post anything."
-//   C  "One person has to tell everyone. Kin works out what each of them needs."
-const HEADLINE = "Thirty organisations need telling. Each one wants something different.";
+// The author's words, chosen 2026-09-22. A model may not write this line
+// (copy-rules §1): an invented headline silently becomes the product's voice.
+const HEADLINE = "Someone has to tell everyone.";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CHANNEL_WORD: Record<string, string> = {
@@ -44,8 +39,9 @@ export default function Landing({ onOpen, children }: { onOpen: () => void; chil
         <span className="live">Reading pages live</span>
         <h1>{HEADLINE}</h1>
         <p className="lede">
-          Kin reads each organisation&rsquo;s own page, works out what they need and how they
-          will accept it, writes to them, and keeps every reply in one place.
+          When someone dies, one person has to notify twenty or thirty organisations. Kin
+          reads each one&rsquo;s own page, works out what they need and how they&rsquo;ll
+          accept it, writes to them, and keeps every reply in one place.
         </p>
       </div>
 
@@ -74,7 +70,20 @@ export default function Landing({ onOpen, children }: { onOpen: () => void; chil
             </p>
           </>
         ) : (
-          <p className="small">Loading the last reading.</p>
+          // Hold the panel's shape. A collapsed box that says "Loading" reads as broken,
+          // and this is the first thing on the page.
+          <div aria-busy="true" aria-label="Reading the last extraction">
+            <div className="sk sk-h" />
+            <div className="sk sk-line" style={{ width: "72%" }} />
+            <div className="addr">
+              <div className="sk sk-line" style={{ width: "58%" }} />
+              <div className="sk sk-line" style={{ width: "44%" }} />
+              <div className="sk sk-line" style={{ width: "66%" }} />
+              <div className="sk sk-line" style={{ width: "38%" }} />
+            </div>
+            <div className="sk sk-line" style={{ width: "94%" }} />
+            <div className="sk sk-line" style={{ width: "88%" }} />
+          </div>
         )}
       </div>
 
@@ -87,14 +96,24 @@ export default function Landing({ onOpen, children }: { onOpen: () => void; chil
           actually asks for, because their coverage is a list somebody maintains by hand.
         </p>
         <p>
-          Kin reads the page when you ask, so it can show you the record instead of the count.
-          {total > 0 && (
+          Kin reads the page when you ask, so it can show you the record instead of the
+          count.{" "}
+          {coverage === undefined ? (
+            <span className="sk sk-inline" />
+          ) : (
             <>
-              {" "}Of the {total} read so far, <b>{takesEmail} accepts email</b>.
+              Of the {total} read so far, <b>{takesEmail} accepts email</b>.
             </>
           )}
         </p>
         <div className="rows">
+          {coverage === undefined &&
+            [72, 54, 63, 48, 58, 67, 80].map((w, i) => (
+              <div className="row" key={i}>
+                <span className="sk sk-line" style={{ width: `${w}px`, minWidth: `${w}px` }} />
+                <span className="sk sk-line" style={{ width: "10rem" }} />
+              </div>
+            ))}
           {coverage?.map((c: any) => (
             <div className="row" key={c.name}>
               <span className="row-name">{c.name}</span>
@@ -111,10 +130,12 @@ export default function Landing({ onOpen, children }: { onOpen: () => void; chil
             </div>
           ))}
         </div>
-        <p className="meta" style={{ marginTop: "0.9rem", display: "block" }}>
-          Read from their own pages. Rows marked otherwise came from somebody writing about
-          them, and the card says so.
-        </p>
+        {coverage !== undefined && (
+          <p className="meta" style={{ marginTop: "0.9rem", display: "block" }}>
+            Read from their own pages. Rows marked otherwise came from somebody writing about
+            them, and the card says so.
+          </p>
+        )}
       </section>
 
       {/* 4 ── the only outside voice we have, and it is real */}
