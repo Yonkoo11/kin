@@ -61,5 +61,18 @@
     "social": "video/out/social.mp4",
     "duration_seconds": 129.92,
     "limit_seconds": 180
+  },
+  "filed": {
+    "platform": "vibeapps.dev",
+    "url": "https://vibeapps.dev/s/kin",
+    "video": "https://youtu.be/4TBsoZmFc5I",
+    "filed_at": "2026-09-22T17:55:00Z",
+    "verified": [
+      "submission page 200",
+      "youtube oembed 200",
+      "repo public 200",
+      "site 200",
+      "/judge 200"
+    ]
   }
 }
