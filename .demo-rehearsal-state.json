@@ -13,13 +13,53 @@
   "footguns_path": "DEMO-FOOTGUNS.md",
   "timestamp": "2026-09-22T16:58:00Z",
   "phase_ledger": [
-    {"phase":"footgun_inventory","evidence":"DEMO-FOOTGUNS.md, 5 footguns; FG-002 CRITICAL found by inspecting the served bundle (pointed at dev deployment upbeat-wolverine-16)"},
-    {"phase":"wow_verification","evidence":"live prod run 2026-09-22: extractedBy=gpt-5, channel=portal, droppedFields=[], sourceIsOwnDomain=true, D1118-02D captured, 68s then 41s"},
-    {"phase":"recording_env_checklist","evidence":"audio_strategy=separate (operator away); headless 1920x1080 capture chosen so no desktop can leak (prior incident: screencapture -v grabbed the wrong window twice)"},
-    {"phase":"pre_recording_checklist","evidence":"preflight green: agentmail 1 inbox, firecrawl 4/4 pages; served bundle verified on acrobatic-condor-542.convex.cloud"},
-    {"phase":"script_generation","evidence":"DEMO-SCRIPT.md, 6 scenes, 20 [SUB] chunks, 150s against a 180s limit"},
-    {"phase":"post_recording_deliverables","evidence":"recordings manifest below, filled after capture"},
-    {"phase":"state_write","evidence":".demo-rehearsal-state.json written"}
+    {
+      "phase": "footgun_inventory",
+      "evidence": "DEMO-FOOTGUNS.md, 5 footguns; FG-002 CRITICAL found by inspecting the served bundle (pointed at dev deployment upbeat-wolverine-16)"
+    },
+    {
+      "phase": "wow_verification",
+      "evidence": "live prod run 2026-09-22: extractedBy=gpt-5, channel=portal, droppedFields=[], sourceIsOwnDomain=true, D1118-02D captured, 68s then 41s"
+    },
+    {
+      "phase": "recording_env_checklist",
+      "evidence": "audio_strategy=separate (operator away); headless 1920x1080 capture chosen so no desktop can leak (prior incident: screencapture -v grabbed the wrong window twice)"
+    },
+    {
+      "phase": "pre_recording_checklist",
+      "evidence": "preflight green: agentmail 1 inbox, firecrawl 4/4 pages; served bundle verified on acrobatic-condor-542.convex.cloud"
+    },
+    {
+      "phase": "script_generation",
+      "evidence": "DEMO-SCRIPT.md, 6 scenes, 20 [SUB] chunks, 150s against a 180s limit"
+    },
+    {
+      "phase": "post_recording_deliverables",
+      "evidence": "recordings manifest below, filled after capture"
+    },
+    {
+      "phase": "state_write",
+      "evidence": ".demo-rehearsal-state.json written"
+    }
   ],
-  "recordings": []
+  "recordings": [
+    {
+      "scene_id": "landing",
+      "file_path": "video/public/video/landing.mp4",
+      "duration_seconds": 27.37,
+      "audio_strategy": "separate"
+    },
+    {
+      "scene_id": "judge",
+      "file_path": "video/public/video/judge.mp4",
+      "duration_seconds": 92.0,
+      "audio_strategy": "separate"
+    }
+  ],
+  "render": {
+    "main": "video/out/demo.mp4",
+    "social": "video/out/social.mp4",
+    "duration_seconds": 129.92,
+    "limit_seconds": 180
+  }
 }

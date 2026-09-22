@@ -75,3 +75,8 @@ VIDEO_SCRIPT.md
 SOCIAL_POSTS.md
 tsconfig.tsbuildinfo
 .shots/
+
+# Rendered video output and its source media — large binaries, not source.
+video/out/
+video/public/video/
+video/public/audio/
