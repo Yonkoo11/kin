@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
+import Stage from "./Stage";
 
 // How each organisation says it will accept the news. This is the fact families get
 // wrong most often, so it is the first thing on the card and it is written as a sentence.
@@ -84,7 +85,7 @@ export default function Organisation({ c }: { c: any }) {
     <article className="rows-item">
       <h2>{c.name}</h2>
 
-      {c.state === "researching" && <p className="small">Reading their page.</p>}
+      {c.state === "researching" && <Stage stage={(c as any).stage} />}
 
       {c.nextAction && <p className={p ? "next" : "warn"}>{c.nextAction}</p>}
 

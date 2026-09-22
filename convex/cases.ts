@@ -111,6 +111,20 @@ export const attachPlaybook = internalMutation({
   },
 });
 
+export const setStage = internalMutation({
+  args: {
+    counterpartyId: v.id("counterparties"),
+    stage: v.union(
+      v.literal("searching"),
+      v.literal("reading"),
+      v.literal("extracting"),
+      v.literal("verifying"),
+    ),
+  },
+  handler: async (ctx, { counterpartyId, stage }) => {
+    await ctx.db.patch("counterparties", counterpartyId, { stage });
+  },
+});
 export const markFailed = internalMutation({
   args: { counterpartyId: v.id("counterparties"), reason: v.string() },
   handler: async (ctx, { counterpartyId, reason }) => {

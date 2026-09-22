@@ -270,3 +270,33 @@ pre.highlight { background: var(--accent-wash); border-left: 2px solid var(--acc
   100% { background-position: -200% 0; }
 }
 @media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
+
+/* ── stage ledger: the four real steps of a lookup ───────── */
+/* Struck-through rather than ticked. This is a page of work done, and a rule through
+   a finished line reads that way without adding an icon set to a product that has none. */
+.stage { list-style: none; padding: 0; margin: 0.9rem 0 0; }
+.stage li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.42rem 0;
+  border-top: 1px solid var(--rule);
+  font-size: var(--t-small);
+  color: var(--ink-3);
+  transition: color 200ms var(--ease);
+}
+.stage li:first-child { border-top: none; }
+.stage li.done { color: var(--ink-3); }
+.stage li.done > span:first-child { text-decoration: line-through; }
+.stage li.now { color: var(--ink); }
+.stage-by { font-family: var(--mono); font-size: var(--t-meta); color: var(--ink-3); }
+.stage li.now .stage-by { color: var(--accent); }
+
+/* The running step breathes, so a screen recording shows motion even while the
+   model is still thinking. Opacity only, and it stops for anyone who asked it to. */
+.stage li.now > span:first-child { animation: stage-pulse 1.6s ease-in-out infinite; }
+@keyframes stage-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) {
+  .stage li.now > span:first-child { animation: none; }
+}

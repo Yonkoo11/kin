@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
+import Stage from "./Stage";
 
 // Ninety seconds is what a judge has. This page spends them on the three moments
 // that are hard to fake, runs them live rather than describing them, and says which
@@ -56,7 +57,7 @@ export default function Judge() {
         n={1}
         title="Firecrawl finds and reads their own page"
         done={!!p}
-        waiting="Searching, then reading."
+        waiting={<Stage stage={(wf as any)?.stage} />}
       >
         {p && (
           <>
@@ -188,7 +189,7 @@ function Step({
   n: number;
   title: string;
   done: boolean;
-  waiting: string;
+  waiting: React.ReactNode;
   children?: React.ReactNode;
 }) {
   return (

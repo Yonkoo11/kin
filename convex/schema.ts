@@ -48,6 +48,16 @@ export default defineSchema({
       v.literal("needs_action"),// they replied asking for something
       v.literal("closed"),
     ),
+    // Which real step of the lookup is running. A research run takes about a minute,
+    // and a card that says only "reading their page" for that whole minute reads as
+    // frozen. Each value below is written when that step actually finishes, so the
+    // line on screen is a record of work done, not a timed animation.
+    stage: v.optional(v.union(
+      v.literal("searching"),   // asking Firecrawl for their own page
+      v.literal("reading"),     // Firecrawl is fetching the page we picked
+      v.literal("extracting"),  // the model is pulling the fields out
+      v.literal("verifying"),   // every contact fact checked back against the page
+    )),
     nextAction: v.optional(v.string()),
     threadId: v.optional(v.string()),
     lastContactAt: v.optional(v.number()),
