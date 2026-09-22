@@ -1,0 +1,25 @@
+{
+  "status": "complete",
+  "footguns_critical": 0,
+  "footguns_high": 0,
+  "footguns_acknowledged": true,
+  "wow_moments_total": 3,
+  "wow_moments_verified": 3,
+  "wow_moments_degraded": 0,
+  "wow_moments_broken": 0,
+  "audio_strategy": "separate",
+  "pacing_mode": "gap",
+  "demo_script_path": "DEMO-SCRIPT.md",
+  "footguns_path": "DEMO-FOOTGUNS.md",
+  "timestamp": "2026-09-22T16:58:00Z",
+  "phase_ledger": [
+    {"phase":"footgun_inventory","evidence":"DEMO-FOOTGUNS.md, 5 footguns; FG-002 CRITICAL found by inspecting the served bundle (pointed at dev deployment upbeat-wolverine-16)"},
+    {"phase":"wow_verification","evidence":"live prod run 2026-09-22: extractedBy=gpt-5, channel=portal, droppedFields=[], sourceIsOwnDomain=true, D1118-02D captured, 68s then 41s"},
+    {"phase":"recording_env_checklist","evidence":"audio_strategy=separate (operator away); headless 1920x1080 capture chosen so no desktop can leak (prior incident: screencapture -v grabbed the wrong window twice)"},
+    {"phase":"pre_recording_checklist","evidence":"preflight green: agentmail 1 inbox, firecrawl 4/4 pages; served bundle verified on acrobatic-condor-542.convex.cloud"},
+    {"phase":"script_generation","evidence":"DEMO-SCRIPT.md, 6 scenes, 20 [SUB] chunks, 150s against a 180s limit"},
+    {"phase":"post_recording_deliverables","evidence":"recordings manifest below, filled after capture"},
+    {"phase":"state_write","evidence":".demo-rehearsal-state.json written"}
+  ],
+  "recordings": []
+}
