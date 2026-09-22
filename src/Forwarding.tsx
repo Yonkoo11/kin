@@ -41,7 +41,7 @@ export default function Forwarding({ caseId }: { caseId: Id<"cases"> }) {
           <p>
             Forward to <code>{inbox}</code>{" "}
             <button
-              className="quiet"
+              className="link"
               onClick={() => {
                 navigator.clipboard?.writeText(inbox);
                 setCopied(true);
@@ -51,7 +51,7 @@ export default function Forwarding({ caseId }: { caseId: Id<"cases"> }) {
               {copied ? "Copied" : "Copy"}
             </button>
           </p>
-          <p className="note">
+          <p className="small">
             Accepted from {members.join(", ")}. Mail from anywhere else is ignored,
             so nobody else can add to this estate.
           </p>
@@ -60,7 +60,7 @@ export default function Forwarding({ caseId }: { caseId: Id<"cases"> }) {
         <>
           <form onSubmit={add}>
             <label htmlFor="member">Which address will you forward from?</label>
-            <div className="row">
+            <div className="field">
               <input
                 id="member"
                 type="email"
@@ -72,12 +72,12 @@ export default function Forwarding({ caseId }: { caseId: Id<"cases"> }) {
               <button type="submit">Use this address</button>
             </div>
           </form>
-          <p className="note">
+          <p className="small">
             Only addresses you register here can add to this estate.
           </p>
         </>
       )}
-      {err && <p className="warn">{err}</p>}
+      {err && <p className="small flag">{err}</p>}
     </section>
   );
 }

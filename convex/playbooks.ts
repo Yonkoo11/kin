@@ -1,4 +1,4 @@
-import { internalMutation, internalQuery } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 import { v } from "convex/values";
 
 // Lives outside research.ts because that file is "use node" for the OpenAI SDK,
@@ -55,5 +55,43 @@ export const forCounterparty = internalQuery({
     const kase = await ctx.db.get("cases", counterparty.caseId);
     if (!playbook || !kase) return null;
     return { playbook, counterparty, deceasedName: kase.deceasedName };
+  },
+});
+
+// The landing page shows real extractions, not a mockup of one. These two queries are the
+// surface for data that previously existed only inside somebody's private case.
+
+// The most recent reading of one organisation, for the panel in the first viewport.
+export const latest = query({
+  args: { institutionName: v.string() },
+  handler: async (ctx, { institutionName }) =>
+    await ctx.db
+      .query("playbooks")
+      .withIndex("by_institutionName", (q) => q.eq("institutionName", institutionName))
+      .order("desc")
+      .first(),
+});
+
+// What real organisations actually accept. One row per organisation, most recent reading.
+// This is the finding the whole product rests on, and no competitor can publish it:
+// their coverage is a hand-maintained directory, so the contents are the asset.
+export const coverage = query({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query("playbooks").order("desc").take(400);
+    const seen = new Map<string, any>();
+    for (const p of all) {
+      const key = p.institutionName.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.set(key, {
+        name: p.institutionName,
+        channel: p.channel,
+        ownDomain: p.sourceIsOwnDomain ?? null,
+        formName: p.formName ?? null,
+        sourceUrl: p.sourceUrl,
+        scrapedAt: p.scrapedAt,
+      });
+    }
+    return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
   },
 });

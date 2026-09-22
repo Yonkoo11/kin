@@ -1,15 +1,38 @@
-/* Direction: a letter, not a dashboard. See design/DIRECTION.md.
-   No cards, no shadows, no icons, no animation. Colour twice only. */
+/* Kin — Direction A "The Ledger". Every value from design/build-brief.md.
+   Shadow philosophy: soft-elevation ladder. Signature: the live extraction. */
 
 :root {
   color-scheme: light;
-  --ink: #1a1714;
-  --ink-soft: #6b635a;
-  --paper: #faf7f2;
-  --rule: #e3dcd0;
-  --yes: #2c4632;
-  --yes-bg: #dde8dd;
-  --warn: #8a3d2a;
+
+  --paper: #f7f3ea;
+  --paper-raised: #fcfaf4;
+  --ink: #17150f;
+  --ink-2: #5e5749;
+  --ink-3: #8a8273;
+  --rule: #e0d8c6;
+  --rule-strong: #cfc4ac;
+  --accent: #2a5140;
+  --accent-wash: rgba(42, 81, 64, 0.1);
+  --flag: #9b4a22;
+
+  --r-sm: 2px;
+  --r-md: 4px;
+  --r-lg: 8px;
+
+  --e-1: 0 1px 2px rgba(50, 40, 20, 0.05);
+  --e-2: 0 1px 2px rgba(50, 40, 20, 0.05), 0 4px 10px -2px rgba(50, 40, 20, 0.07),
+    0 12px 28px -8px rgba(50, 40, 20, 0.08);
+
+  --t-display: clamp(2.6rem, 7vw, 4.75rem);
+  --t-h2: clamp(1.35rem, 2.6vw, 1.75rem);
+  --t-lede: clamp(1.0625rem, 1.5vw, 1.25rem);
+  --t-body: 1.0625rem;
+  --t-small: 0.875rem;
+  --t-meta: 0.75rem;
+
+  --serif: "Iowan Old Style", Baskerville, "Times New Roman", Times, serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 * { box-sizing: border-box; }
@@ -18,189 +41,208 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font: 17px/1.65 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
-  padding: 0 20px;
+  font: var(--t-body) / 1.6 var(--serif);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-main {
-  max-width: 34rem;
-  margin: 0 auto;
-  padding-block: 10vh 12vh;
+/* Left-aligned with a deliberate right void. Not centered. (SR-6) */
+.page {
+  padding: clamp(3rem, 6vw, 5rem) max(6vw, 1.25rem) 8rem;
+  max-width: 78rem;
 }
+.col { max-width: min(52vw, 40rem); }
+@media (max-width: 860px) { .col { max-width: 100%; } }
 
+/* ── type ───────────────────────────────────────────────── */
 h1 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-size: var(--t-display);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
   margin: 0 0 1.5rem;
+  text-wrap: balance;
 }
-
 h2 {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin: 0 0 0.6rem;
+  font-size: var(--t-h2);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 0.9rem;
+}
+h3 { font-size: 1.0625rem; font-weight: 600; margin: 0 0 0.5rem; }
+p { margin: 0 0 1.1rem; }
+.lede { font-size: var(--t-lede); line-height: 1.5; color: var(--ink-2); }
+.small { font-size: var(--t-small); color: var(--ink-2); }
+.meta {
+  font: 500 var(--t-meta) / 1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.flag { color: var(--flag); }
+code, .mono, pre { font-family: var(--mono); font-size: 0.875rem; }
+pre { margin: 0; white-space: pre-wrap; line-height: 1.5; }
+
+a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--accent); }
+
+/* ── the one ambient element: the live dot ──────────────── */
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: 500 var(--t-meta) / 1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 1.75rem;
+}
+.live::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: breathe 2.4s var(--ease) infinite;
+}
+@keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) {
+  .live::before { animation: none; }
+  * { transition-duration: 0.01ms !important; }
 }
 
-p { margin: 0 0 1rem; }
-.lede { font-size: 1.1rem; }
-.note { color: var(--ink-soft); font-size: 0.9rem; }
-.warn { color: var(--warn); }
-.next { font-weight: 600; }
-
-a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 2px; }
-
-/* One rule between organisations. No card. */
-article {
-  border-top: 1px solid var(--rule);
-  padding-top: 1.75rem;
-  margin-top: 2.5rem;
+/* ── the signature element: the live extraction panel ───── */
+.panel {
+  max-width: min(64vw, 50rem);
+  background: var(--paper-raised);
+  border-radius: var(--r-lg);
+  box-shadow: var(--e-2);
+  padding: 1.75rem 1.9rem 1.6rem;
+  margin: 2.5rem 0 5rem;
 }
-
-/* The first fact on the card, as a sentence. */
-.channel {
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 0.4rem;
+@media (max-width: 860px) { .panel { max-width: 100%; padding: 1.4rem 1.25rem; } }
+.panel .meta { margin-bottom: 1.1rem; display: block; }
+.addr {
+  border-left: 2px solid var(--accent);
+  padding: 0.1rem 0 0.1rem 1rem;
+  margin: 0.4rem 0 1.2rem;
 }
-.channel.yes { color: var(--yes); }
+.addr b { font-weight: 700; background: var(--accent-wash); padding: 0 2px; }
+/* The argument, not a footnote. */
+.panel-note { font-size: 1rem; line-height: 1.55; color: var(--ink); margin: 0; }
+.panel-note b { font-family: var(--mono); font-size: 0.9375rem; }
 
-/* Their own words, set apart so nobody mistakes them for ours. */
-.quote {
-  border-left: 2px solid var(--rule);
-  padding-left: 0.85rem;
-  color: var(--ink-soft);
-  font-size: 0.95rem;
+/* ── records: hairline rows, never cards (SR-1) ─────────── */
+.rows { border-top: 1px solid var(--rule); margin-top: 1.25rem; }
+.row {
+  display: flex;
+  gap: 0.35rem 1.25rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule);
 }
+@media (max-width: 720px) {
+  /* Consistent stacking beats some rows fitting and some wrapping. */
+  .row { display: grid; grid-template-columns: 1fr; }
+  .row-meta { text-align: left; }
+}
+.row-name { font-size: 1.0625rem; }
+.row-meta { font-family: var(--mono); font-size: 0.8125rem; color: var(--ink-2); text-align: right; }
 
-dl { margin: 1.5rem 0 0; }
-dt {
-  font-size: 0.78rem;
+/* the channel chip — accent use 2 of 3 */
+.chip {
+  display: inline-block;
+  font: 500 var(--t-meta) / 1.5 var(--mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink-soft);
-  margin-top: 1.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--r-sm);
+  background: rgba(90, 80, 60, 0.08);
+  color: var(--ink-2);
+  box-shadow: var(--e-1);
 }
-dd { margin: 0.25rem 0 0; }
+.chip.email { background: var(--accent-wash); color: var(--accent); }
+.chip.none { background: rgba(155, 74, 34, 0.1); color: var(--flag); }
 
-ul { margin: 0.25rem 0 0; padding-left: 1.1rem; }
-li { margin-bottom: 0.2rem; }
-
-/* An address is a string to transcribe exactly. */
-pre, code {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.88rem;
-}
-pre {
+/* ── quote ──────────────────────────────────────────────── */
+blockquote {
   margin: 0;
-  white-space: pre-wrap;
-  line-height: 1.5;
+  font-size: 1.4rem;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 1.25rem;
 }
+blockquote + .meta { margin-top: 0.9rem; display: block; }
 
-/* The letter, set like a letter. */
-.letter {
-  margin-top: 2rem;
-  border-top: 1px dashed var(--rule);
-  border-bottom: 1px dashed var(--rule);
-  padding: 1.25rem 0;
+/* ── sections, deliberately uneven rhythm ───────────────── */
+section { margin-bottom: 4.5rem; }
+section.wide { margin-bottom: 6rem; }
+
+/* ── controls ───────────────────────────────────────────── */
+button {
+  font: 500 1rem/1 var(--serif);
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--paper-raised);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-md);
+  padding: 0.7rem 1.25rem;
+  box-shadow: var(--e-1);
+  transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
 }
-.letter .from { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 0.9rem; }
-.body {
-  font-family: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
-  font-size: 1rem;
-  white-space: pre-wrap;
-  margin-bottom: 1rem;
+@media (hover: hover) {
+  button:hover { transform: translateY(-1px); box-shadow: var(--e-2); }
 }
-
-.offline { margin-top: 1.25rem; }
-
-form { margin: 2rem 0 0; }
-label { display: block; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
-.row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.row input { flex: 1 1 14rem; }
+button:active { transform: translateY(0) scale(0.97); transition-duration: 80ms; }
+button:disabled { opacity: 0.45; cursor: default; transform: none; box-shadow: none; }
+button.secondary { background: transparent; color: var(--ink); border-color: var(--rule-strong); }
+button.link {
+  background: none; border: 0; box-shadow: none; padding: 0;
+  color: var(--ink); text-decoration: underline; text-underline-offset: 3px;
+  font-size: inherit;
+}
+@media (hover: hover) { button.link:hover { transform: none; box-shadow: none; color: var(--accent); } }
 
 input {
-  font: inherit;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid #d6cdc0;
-  border-radius: 2px;
-  background: #fff;
+  font: var(--t-body) / 1.4 var(--serif);
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: var(--paper-raised);
   color: var(--ink);
+  box-shadow: var(--e-1);
+  transition: box-shadow 160ms var(--ease);
 }
-input:focus-visible, button:focus-visible, a:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-}
-
-button {
-  font: inherit;
-  cursor: pointer;
-  background: var(--ink);
-  color: var(--paper);
-  border: 1px solid var(--ink);
-  border-radius: 2px;
-  padding: 0.55rem 1.1rem;
-  margin-top: 0.75rem;
-}
-button:hover { background: #3a332c; }
-button:disabled { opacity: 0.5; cursor: default; }
-button.quiet {
-  background: transparent;
-  color: var(--ink-soft);
-  border-color: #d6cdc0;
-  font-size: 0.85rem;
-  padding: 0.3rem 0.7rem;
-}
-button.quiet:hover { background: #f0eade; color: var(--ink); }
-
-@media (max-width: 430px) {
-  body { padding: 0 16px; }
-  main { padding-block: 6vh 8vh; }
+:is(button, input, a, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-wash), var(--e-1);
 }
 
-/* The forwarding panel. Set apart from the board by a rule, not a box. */
-.forwarding {
-  border-top: 1px solid var(--rule);
-  margin-top: 2.5rem;
-  padding-top: 1.75rem;
-}
-.forwarding h2 { margin-bottom: 0.5rem; }
+form { margin: 1.5rem 0 0; }
+label { display: block; margin-bottom: 0.45rem; }
+.field { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.field input { flex: 1 1 15rem; min-width: 0; }
 
-/* A button that reads as a link, for actions that are not the point of the page. */
-button.link {
-  background: none;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  color: var(--ink);
-  font: inherit;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-button.link:hover { background: none; color: var(--warn); }
+ul { margin: 0.3rem 0 1.1rem; padding-left: 1.1rem; }
+li { margin-bottom: 0.3rem; }
+dl { margin: 1.4rem 0 0; }
+dt { margin-top: 1.15rem; font: 500 var(--t-meta) / 1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+dd { margin: 0.3rem 0 0; }
 
-.account {
-  border-top: 1px solid var(--rule);
-  margin-top: 2.5rem;
-  padding-top: 1.75rem;
-}
-.account form { margin-top: 1rem; }
+footer { border-top: 1px solid var(--rule); padding-top: 1.5rem; margin-top: 6rem; }
+
+/* ── ported surfaces ────────────────────────────────────── */
+.rows-item { border-top: 1px solid var(--rule); padding-top: 1.6rem; margin-top: 2.2rem; }
+.rows-item h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.letter { margin: 1.6rem 0; }
+.letter .body { font-family: var(--serif); font-size: 1rem; white-space: pre-wrap; margin-bottom: 1rem; }
+.offline { margin-top: 1.25rem; }
+.account, .forwarding { border-top: 1px solid var(--rule); margin-top: 3rem; padding-top: 1.75rem; }
 .account input { display: block; width: 100%; margin-bottom: 0.9rem; }
 .estates { list-style: none; padding: 0; margin: 0 0 1rem; }
 .estates li { margin-bottom: 0.4rem; }
-
-/* The judge tour. Same typography; the only addition is one highlighted block,
-   because one fact on that page carries the whole argument. */
-.mono-line {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.82rem;
-  word-break: break-all;
-  color: var(--ink-soft);
-}
-pre.highlight {
-  background: #f0eade;
-  border-left: 2px solid var(--ink);
-  padding: 0.9rem 1rem;
-  margin: 0.5rem 0 1rem;
-}
+pre.highlight { background: var(--accent-wash); border-left: 2px solid var(--accent); padding: 0.9rem 1rem; margin: 0.5rem 0 1rem; border-radius: var(--r-sm); }

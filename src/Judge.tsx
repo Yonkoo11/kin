@@ -38,19 +38,19 @@ export default function Judge() {
   );
 
   return (
-    <main>
+    <div className="page"><div className="col">
       <h1>Kin</h1>
       <p className="lede">
         When someone dies, one person has to tell twenty or thirty organisations.
         Kin reads each one&rsquo;s own page, works out what they need and how they will
         accept it, writes to them, and keeps every reply in one place.
       </p>
-      <p className="note">
+      <p className="small">
         This page is running the real product, right now, with one input: the words
         &ldquo;Wells Fargo&rdquo;. Nothing below is pre-recorded.
       </p>
 
-      {err && <p className="warn">{err}</p>}
+      {err && <p className="small flag">{err}</p>}
 
       <Step
         n={1}
@@ -65,8 +65,8 @@ export default function Judge() {
               we tried by hand, four were wrong and two refused to load, so it has to be
               searched for.
             </p>
-            <p className="mono-line">{p.sourceUrl}</p>
-            <p className="note">
+            <p className="mono small">{p.sourceUrl}</p>
+            <p className="small">
               {p.sourceIsOwnDomain === false
                 ? "Flagged: this is not their own website, so the card says so."
                 : "This is Wells Fargo’s own website."}
@@ -89,7 +89,7 @@ export default function Judge() {
               guessed, a certified death certificate would go nowhere.
             </p>
             <pre className="highlight">{p.postalAddress}</pre>
-            <p className="note">
+            <p className="small">
               Grep this repository for <code>D1118</code> and you will not find it.
             </p>
             <p>
@@ -98,7 +98,7 @@ export default function Judge() {
               and named. Dropped on this run:{" "}
               <strong>{p.droppedFields?.length ? p.droppedFields.join(", ") : "none"}</strong>.
             </p>
-            <p className="note">Produced by {p.extractedBy}.</p>
+            <p className="small">Produced by {p.extractedBy}.</p>
           </>
         )}
       </Step>
@@ -116,8 +116,8 @@ export default function Judge() {
               accept email, and neither does Chase. We checked their pages rather than
               assuming.
             </p>
-            <p className="channel">{p.channel === "email" ? "Accepts email" : `They accept: ${p.channel}, not email`}</p>
-            {p.channelNote && <p className="quote">{p.channelNote}</p>}
+            <p className="chip">{p.channel === "email" ? "Accepts email" : `They accept: ${p.channel}, not email`}</p>
+            {p.channelNote && <p className="small">{p.channelNote}</p>}
             <p>
               So Kin refuses to offer a send button here and produces the exact postal
               packet instead. Detecting the channel is the feature, not a limitation we
@@ -136,7 +136,7 @@ export default function Judge() {
         {draft && (
           <>
             <pre className="body">{draft.body}</pre>
-            <p className="note">
+            <p className="small">
               Written by {draft.generatedBy}. It names their Letter of Instruction because
               their page names it, and it asks how the accounts are titled rather than
               inventing an answer.
@@ -151,7 +151,7 @@ export default function Judge() {
         )}
       </Step>
 
-      <section className="account">
+      <section className="col">
         <h2>What is not true yet</h2>
         <p>
           We would rather you read this from us than find it.
@@ -174,7 +174,7 @@ export default function Judge() {
           .
         </p>
       </section>
-    </main>
+    </div></div>
   );
 }
 
@@ -196,7 +196,7 @@ function Step({
       <h2>
         {n}. {title}
       </h2>
-      {done ? children : <p className="note">{waiting}</p>}
+      {done ? children : <p className="small">{waiting}</p>}
     </article>
   );
 }

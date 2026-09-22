@@ -6,6 +6,7 @@ import Organisation from "./Organisation";
 import Forwarding from "./Forwarding";
 import Account from "./Account";
 import Judge from "./Judge";
+import Landing from "./Landing";
 
 export default function App() {
   // Static hosting serves index.html for any path, so one read of the path is
@@ -46,32 +47,23 @@ function Board() {
     }
   }
 
-  return (
-    <main>
-      <h1>Kin</h1>
-
-      {!caseId ? (
-        <>
-          <p className="lede">
-            When someone dies, one person has to tell twenty or thirty organisations.
-            Each wants something different, and most will not tell you what until you
-            have waited on hold.
-          </p>
-          <p>
-            Kin reads each organisation&rsquo;s own page, works out what they need and how
-            they will accept it, writes to them, and keeps every reply in one place.
-          </p>
-          <button onClick={() => open(true, "Margaret Oyelaran")}>
-            Open an example estate
-          </button>
-          <p className="note">Nothing is sent without you reading it first.</p>
-
+  if (!caseId) {
+    return (
+      <Landing onOpen={() => open(true, "Margaret Oyelaran")}>
+        <div className="col">
+          {error && <p className="small flag">{error}</p>}
           <Authenticated>
             <RealEstate onCreate={(n) => open(false, n)} />
           </Authenticated>
           <Account onOpen={setCaseId} />
-        </>
-      ) : (
+        </div>
+      </Landing>
+    );
+  }
+
+  return (
+    <div className="page">
+      <div className="col">
         <>
           <p className="lede">
             {current?.demo ? "An example estate. " : ""}
@@ -80,7 +72,7 @@ function Board() {
 
           <form onSubmit={add}>
             <label htmlFor="org">Who needs to be told?</label>
-            <div className="row">
+            <div className="field">
               <input
                 id="org"
                 value={name}
@@ -92,23 +84,21 @@ function Board() {
             </div>
           </form>
 
-          {error && <p className="warn">{error}</p>}
+          {error && <p className="small flag">{error}</p>}
 
           <Forwarding caseId={caseId} />
 
-          {board === undefined && <p className="note">Loading.</p>}
+          {board === undefined && <p className="small">Reading.</p>}
           {board?.length === 0 && (
-            <p className="note">
-              Nothing added yet. Try Wells Fargo, or the name of a gym.
-            </p>
+            <p className="small">Nothing added yet. Try Wells Fargo, or the name of a gym.</p>
           )}
 
           {board?.map((c: any) => (
             <Organisation key={c._id} c={c} />
           ))}
         </>
-      )}
-    </main>
+      </div>
+    </div>
   );
 }
 
@@ -122,7 +112,7 @@ function RealEstate({ onCreate }: { onCreate: (name: string) => void }) {
       }}
     >
       <label htmlFor="who">Or start a real one. Whose estate is it?</label>
-      <div className="row">
+      <div className="field">
         <input
           id="who"
           value={n}

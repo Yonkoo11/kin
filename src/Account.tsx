@@ -29,7 +29,7 @@ function SignIn() {
 
   if (!open) {
     return (
-      <p className="note">
+      <p className="small">
         Keeping a real estate?{" "}
         <button className="link" onClick={() => setOpen(true)}>
           Sign in or start an account
@@ -42,7 +42,7 @@ function SignIn() {
   return (
     <section className="account">
       <h2>{mode === "signUp" ? "Start an account" : "Sign in"}</h2>
-      <p className="note">
+      <p className="small">
         A real estate holds someone&rsquo;s details, so it has to belong to somebody.
         Nothing is shared with anyone you do not add.
       </p>
@@ -79,12 +79,12 @@ function SignIn() {
           required
           minLength={8}
         />
-        {err && <p className="warn">{err}</p>}
+        {err && <p className="small flag">{err}</p>}
         <button type="submit" disabled={busy}>
           {busy ? "One moment" : mode === "signUp" ? "Start an account" : "Sign in"}
         </button>
       </form>
-      <p className="note">
+      <p className="small">
         {mode === "signUp" ? "Already have one? " : "New here? "}
         <button
           className="link"
@@ -120,7 +120,7 @@ function MyEstates({ onOpen }: { onOpen: (id: Id<"cases">) => void }) {
           </ul>
         </>
       )}
-      <p className="note">
+      <p className="small">
         Signed in. <button className="link" onClick={() => void signOut()}>Sign out</button>
       </p>
     </section>

@@ -81,10 +81,10 @@ export default function Organisation({ c }: { c: any }) {
   }
 
   return (
-    <article>
+    <article className="rows-item">
       <h2>{c.name}</h2>
 
-      {c.state === "researching" && <p className="note">Reading their page.</p>}
+      {c.state === "researching" && <p className="small">Reading their page.</p>}
 
       {c.nextAction && <p className={p ? "next" : "warn"}>{c.nextAction}</p>}
 
@@ -94,7 +94,7 @@ export default function Organisation({ c }: { c: any }) {
             {CHANNEL[p.channel] ?? p.channel}
           </p>
 
-          {p.channelNote && <p className="quote">{p.channelNote}</p>}
+          {p.channelNote && <p className="small">{p.channelNote}</p>}
 
           <dl>
             {p.postalAddress && (
@@ -124,7 +124,7 @@ export default function Organisation({ c }: { c: any }) {
                       {safeSource(p.portalUrl)!.host}
                     </a>
                   ) : (
-                    <span className="warn">a link we could not verify</span>
+                    <span className="small flag">a link we could not verify</span>
                   )}
                 </dd>
               </>
@@ -168,7 +168,7 @@ export default function Organisation({ c }: { c: any }) {
           </dl>
 
           {p.droppedFields?.length > 0 && (
-            <p className="warn">
+            <p className="small flag">
               We could not confirm these on their page, so we left them out rather than
               guessing: {p.droppedFields.join(", ")}. Check those by phone before you send
               anything.
@@ -176,14 +176,14 @@ export default function Organisation({ c }: { c: any }) {
           )}
 
           {draft && (
-            <section className="letter">
-              <p className="from">Subject: {draft.subject}</p>
+            <section className="panel letter">
+              <p className="meta">Subject: {draft.subject}</p>
               <pre className="body">{draft.body}</pre>
-              <p className="note">Written by {draft.generatedBy}. Read it before it goes.</p>
+              <p className="small">Written by {draft.generatedBy}. Read it before it goes.</p>
             </section>
           )}
 
-          {err && <p className="warn">{err}</p>}
+          {err && <p className="small flag">{err}</p>}
 
           {draft && !draft.approvedAt && (
             acceptsEmail ? (
@@ -206,7 +206,7 @@ export default function Organisation({ c }: { c: any }) {
           )}
 
           {draft?.approvedAt && (
-            <p className="note">
+            <p className="small">
               {delivery?.status
                 ? `Sent. The mail service says: ${delivery.status}.`
                 : "Sent."}
@@ -214,14 +214,14 @@ export default function Organisation({ c }: { c: any }) {
           )}
 
           {p.sourceIsOwnDomain === false && (
-            <p className="warn">
+            <p className="small flag">
               This did not come from {c.name}&rsquo;s own website. It came from somebody
               writing about them, which can read exactly like policy and is not. Confirm
               it with {c.name} before you send anything.
             </p>
           )}
 
-          <p className="note">
+          <p className="small">
             Read on {new Date(p.scrapedAt).toLocaleDateString()} from{" "}
             {src ? (
               <a href={src.href} target="_blank" rel="noreferrer noopener">
